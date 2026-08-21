@@ -21,7 +21,7 @@
  */
 
 // ── Config ────────────────────────────────────────────────────────
-var SHEET_ID = "1eCSQ8mXfaPmR6N_3GJdBe5j5ZlJ2XuevCuTx1kyPcAQ"; // PRODUCTION sheet — "Customer Success Tracking Sheet"
+var SHEET_ID = "YOUR_PRODUCTION_TRACKING_SHEET_ID_HERE"; // PRODUCTION sheet — replace with your own Google Sheet ID
 var TAB_NAME = "Edit This One!";
 
 var REFERRAL_SOURCES = [
@@ -36,7 +36,7 @@ var TEAM_NAMES = [
 
 // Peter Billing's HubSpot owner ID — he always gets the thank-you card
 // task, so this is used directly rather than doing an owner lookup for him.
-var PETER_BILLING_OWNER_ID = "160907600";
+var PETER_BILLING_OWNER_ID = "YOUR_HUBSPOT_OWNER_ID_HERE"; // replace with the real HubSpot owner ID for whoever always receives this task
 
 // How many days back the Fathom fallback scan looks. This only affects
 // contacts whose Fathom invitee filter misses them (e.g. two people sharing
@@ -345,7 +345,7 @@ function dedupeMeetings(items, getTimestamp) {
 // NOTE: "best practices" was briefly added here and then REVERTED — it
 // was a wrong fix. "OneSource Best Practices" calls are genuine
 // onboarding sessions (confirmed directly: Fathom tags them "STE ONBD"
-// internally). The real issue for Josh Kirby's case was the OPPOSITE:
+// internally). The real issue for Contact H's case was the OPPOSITE:
 // "OneSource Click-Around" was being trusted as onboarding evidence when
 // it's actually a pre-sale DEMO for a prospect (Fathom tags it "STE
 // DEM"). See the meeting_type handling below, which uses Fathom's own
@@ -413,10 +413,10 @@ function isOnboardingMeeting(m, contactFirstName) {
   if (title.indexOf("onesource meeting") >= 0) return false;
   // "click around"/"click-around" confirmed directly as a pre-sale demo,
   // not onboarding — same real distinction Fathom's own meeting_type tag
-  // draws (STE DEM vs STE ONBD, see Josh Kirby's case above), but this
+  // draws (STE DEM vs STE ONBD, see Contact H's case above), but this
   // check matters MORE here: HubSpot's own meeting objects have no
   // meeting_type at all, so for any contact with zero Fathom recordings
-  // (confirmed real case: Jordanne Thomas), this title-level exclusion is
+  // (confirmed real case: Contact I), this title-level exclusion is
   // the ONLY thing standing between a genuine pre-sale demo and it being
   // wrongly used as the "first onboard date" via the generic name
   // fallback below.
@@ -430,7 +430,7 @@ function isOnboardingMeeting(m, contactFirstName) {
   // its own check rather than relying on the "onbd" match above. "ramp
   // up" covers "OneSource Ramp Up Call" — confirmed a real onboarding
   // call type that HubSpot's title logic didn't recognize at all
-  // (Jordanne Thomas: "0 training call(s)" found despite 3 real Ramp Up
+  // (Contact I: "0 training call(s)" found despite 3 real Ramp Up
   // calls existing on her profile), forcing a fallback to a year-old demo
   // as a last resort instead.
   if (/\btraining\b/.test(title)) return true;
@@ -564,9 +564,9 @@ function escapeRegexLiteral(s) {
 // meeting whose summary happens to say something like "the client agreed
 // to..." would satisfy a raw indexOf("reed") check even though the
 // meeting has nothing to do with a contact named Reed. \b enforces this
-// only matches the token as its own word. Confirmed real case: Ben Reed
+// only matches the token as its own word. Confirmed real case: Contact A
 // was getting cross-matched to an unrelated contact's onboarding call
-// (Austin Zahn's, hosted by Ben Ogan) purely through this kind of
+// (Contact B's, hosted by Ben Ogan) purely through this kind of
 // substring collision in contactMatchesMeeting.
 function containsWord(text, token) {
   if (!token) return false;
@@ -606,11 +606,11 @@ function contactMatchesMeeting(m, firstName, lastName, email, coTokens) {
     // words, not something a token count alone can fully close.
     //
     // Requires the FULL name (first AND last), not just first name, for
-    // the same reason — confirmed real false-positive: Ross Quintero and
-    // Josh Kirby both work at "Stanbrough Realty." Josh's own onboarding
+    // the same reason — confirmed real false-positive: Contact G and
+    // Contact H both work at "Company A." Contact H's own onboarding
     // call summary happened to mention "Ross" somewhere (a colleague, in
     // passing), and since the company tokens ("stanbrough", "realty")
-    // legitimately appeared too (it genuinely was Josh's real company),
+    // legitimately appeared too (it genuinely was Contact H's real company),
     // the OLD first-name-only check wrongly confirmed the match — pulling
     // an entirely unrelated person's call in as if it were Ross's own.
     // Two coworkers sharing a company and one being mentioned by first
@@ -923,8 +923,8 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
   // the EXACT same title, that's the confirmed signature of a call that
   // got rescheduled — the original booking (now stale) and the new one it
   // moved to both persist as separate meeting records. Directly confirmed
-  // real case: Jordanne Thomas had two meetings both titled "OneSource
-  // Ramp Up Call 2 w/ Jordanne Thomas" (6/4 and 6/9) — the 6/4 one never
+  // real case: Contact I had two meetings both titled "OneSource
+  // Ramp Up Call 2 w/ Contact I" (6/4 and 6/9) — the 6/4 one never
   // actually happened and has NO internal meeting notes at all, while the
   // 6/9 one it was rescheduled to has real, substantive notes ("Email Int
   // worked: Covered everything we needed."). This is NOT a blanket "every
@@ -976,8 +976,7 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
   // single call can't independently evidence two different things: once
   // a meeting has been reclassified as THE onboarding session, its host
   // is already claimed for that role and can't also stand as separate
-  // proof of who the salesperson was. Confirmed as a real bug: Devyn
-  // Brunet's "CRE OneSource Meeting with Collin" tripped the demo-keyword
+  // proof of who the salesperson was. Confirmed as a real bug: Contact J's "CRE OneSource Meeting with Collin" tripped the demo-keyword
   // check (naming Collin Michels as salesperson), then — correctly — got
   // reused as her actual onboarding session once the real training call
   // turned out to be future-dated. Without this retraction, Collin ended
@@ -1019,7 +1018,7 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
       // just the earliest — the Fathom search window used to be built
       // from candidateOnboardingDateIso alone (±5 days), which silently
       // missed later real calls for anyone whose onboarding stretched out
-      // longer than 5 days. Confirmed as a real bug: Zach Leger has 4
+      // longer than 5 days. Confirmed as a real bug: Contact D has 4
       // genuine recorded training calls spanning 6/17 to 7/1 (two weeks),
       // but a ±5-day window anchored on just the earliest (6/17) only
       // reaches 6/22 — missing 3 of his 4 real calls entirely and
@@ -1037,8 +1036,8 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
       // onboarding cycle (a different company, years earlier) still
       // attached to its HubSpot Meetings tab. Left unguarded, the single
       // OVERALL-earliest one becomes "first onboard date" no matter how
-      // old it is. Confirmed real case: Ben Reed's contact record is from
-      // 2023 (an old Street Commercial-era cycle) — a training-titled
+      // old it is. Confirmed real case: Contact A's contact record is from
+      // 2023 (an old a prior unrelated company-era cycle) — a training-titled
       // meeting from 2023-05-22 was still on his profile alongside his
       // real, current (Aug 2026) onboarding at his own new shop, and got
       // wrongly reported as his first onboard date. Worse, the resulting
@@ -1138,11 +1137,11 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
         // — and promoting it to "the onboarding session" purely for being
         // chronologically earlier and sharing an owner is a much weaker
         // basis than genuine title-blindness. Confirmed as a real bug:
-        // Brett DeLoach had a Feb 2 call titled "Reconnect" (a pre-deal
+        // Contact F had a Feb 2 call titled "Reconnect" (a pre-deal
         // sales touchpoint, months before onboarding even started) that
         // got wrongly promoted over the real June 30 training call this
         // way, reporting a wildly wrong first-onboard date. The untitled
-        // case this fix now scopes to is Krish Manwani's — a call with NO
+        // case this fix now scopes to is Contact E's — a call with NO
         // title at all, which is invisible to isOnboardingMeeting/
         // isDemoMeeting by construction, not just a title we don't
         // recognize.
@@ -1927,7 +1926,7 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
   // that a single execution can legitimately run past 6 minutes and still
   // complete successfully on this account, so this isn't about dodging a
   // ceiling. It's about giving a bounded, predictable wait instead of an
-  // open-ended one: confirmed real case, Henry Robinson's search ran over
+  // open-ended one: confirmed real case, Contact K's search ran over
   // 5 minutes before completing. Once this budget is exceeded, each tier
   // stops gracefully and uses whatever it's found so far, the same way
   // the existing dry-spell/rate-limit stopping points already work,
@@ -2211,9 +2210,8 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
       // reporting "no onboarding call found" and falling through to the
       // full multi-tier fallback scan. That scan would burn through rate
       // limits chasing a classification ("onboarding") this call's title
-      // can never satisfy — confirmed real case: Cannon Thornhill's only
-      // real onboarding session is titled "CRE OneSource Meeting w/ Cannon
-      // Thornhill" (a demo-style title), so isOnboardingMeeting() will
+      // can never satisfy — confirmed real case: Contact C's only
+      // real onboarding session is titled "CRE OneSource Meeting w/ Contact C" (a demo-style title), so isOnboardingMeeting() will
       // never match it no matter how long the scan runs.
       if (pastDemoStandIn && demoPick) {
         var standInTitle = demoPick.meeting.meeting_title || demoPick.meeting.title || "";
@@ -2365,8 +2363,7 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
         // contact's real calls cluster together in the pagination, which
         // isn't true when their email is invited to many unrelated
         // meetings (calendar_invitees[] matches ANY meeting they're on,
-        // not just onboarding-related ones): confirmed real case — Andrew
-        // Rose's 3 genuine calls were scattered across 70+ invitee-matched
+        // not just onboarding-related ones): confirmed real case — Contact L's 3 genuine calls were scattered across 70+ invitee-matched
         // meetings, with the first one found on an early page but the
         // other two sitting several pages further out. Stopping 2 pages
         // after only the FIRST discovery missed both of them. Extending
@@ -2391,7 +2388,7 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
         // contact (wastes time chasing pages that were never going to
         // reveal anything, as happened with Mark Elrod) or not generous
         // enough for a contact with several genuinely scattered real
-        // calls (missed 2 of Andrew Rose's 3). Knowing the real target
+        // calls (missed 2 of Contact L's 3). Knowing the real target
         // count up front removes the guessing entirely for any contact
         // where HubSpot's own data already tells us how many to look for.
         if (knownPastTrainingCount > 0 && currentOnboardingCount >= knownPastTrainingCount) {
@@ -2403,13 +2400,13 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
         // genuinely generous — but NOT unlimited — extra allowance before
         // giving up, rather than either the plain short dry-spell cutoff
         // OR no cutoff at all. Confirmed as a real, two-sided problem:
-        // the plain short cutoff alone missed 2 of Andrew Rose's 3 real
+        // the plain short cutoff alone missed 2 of Contact L's 3 real
         // calls (scattered deep in a noisy invitee list). But fully
         // suppressing the cutoff assumed HubSpot's own count is always
         // accurate — it isn't: HubSpot doesn't have Fathom's meeting_type
         // tag and can't distinguish a real onboarding call from a
         // similarly-titled non-onboarding one, so its count can OVERcount
-        // too. Confirmed real case: Josh Kirby's HubSpot count said 2
+        // too. Confirmed real case: Contact H's HubSpot count said 2
         // training calls, but Fathom's more accurate meeting_type
         // classification could only ever confirm 1 real one — an
         // unreachable target, which drove the search all the way to a
@@ -2742,8 +2739,7 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
   // when that demo happened (a deal is usually created around when the
   // demo closes it), so this tries ONE narrow, targeted search around
   // THAT specific date as an extra last step — not a blanket widening of
-  // the default window for everyone. Confirmed real case: Kristen
-  // Zueger's actual demo (Brock Baker) was in March, ~3 months before her
+  // the default window for everyone. Confirmed real case: Contact M's actual demo (Brock Baker) was in March, ~3 months before her
   // July onboarding — completely unreachable by any window anchored to
   // onboarding or signup, but her deal's creation date sits right next
   // to when that March demo actually happened.
@@ -2906,8 +2902,8 @@ function debugFathomLookupAlert() {
 // run it, then switch to that tab and watch — no waiting for a popup,
 // no digging through execution logs.
 function debugFathomToSheet() {
-  var personName = "Stephen Scuderi";
-  var personEmail = "sscuderi@pyramidbrokerage.com";
+  var personName = "PASTE A CONTACT FULL NAME HERE";
+  var personEmail = "paste-contact-email@example.com";
   var daysBack = 60; // widen this (e.g. 180) if a contact was onboarded longer ago
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -3098,7 +3094,7 @@ function findExistingContactRow(email) {
 // hand-pick the workflow — it comes straight from real data.
 //
 // Matches by FIRST + LAST NAME (columns B/C), not email — confirmed real
-// case: Jordanne Thomas's email in this tab was still his OLD employer's
+// case: Contact I's email in this tab was still his OLD employer's
 // address (jthomas@leelalb.com) after he moved to Marcus & Millichap and
 // HubSpot picked up his new email — an exact email match found nothing
 // even though his product data was sitting right there under his
@@ -3379,7 +3375,7 @@ function searchContactsByName(query) {
         // name ALONE. With 112 real Richardsons in the database and a
         // limit of 10, her actual combined match never had a chance to
         // surface — confirmed as the exact cause of two real reported
-        // failures (Liz Richardson, Andrew Rose), not a coincidence.
+        // failures (Liz Richardson, Contact L), not a coincidence.
         var fieldOptions = ["firstname", "lastname"];
         var combos = [[]];
         words.forEach(function(w) {
@@ -3575,7 +3571,7 @@ function pullContactData(input) {
     // it does support searching by CONTACT (email), which matches the
     // real attendee record regardless of what the call is titled —
     // confirmed far more reliable than the title-text search this used
-    // to use: Devyn Brunet's real calls are titled "...with Collin" and
+    // to use: Contact J's real calls are titled "...with Collin" and
     // "...with Devyn" (owner/first-name only), never containing her own
     // last name at all, so a title search for "Brunet" correctly finds
     // nothing even though her recordings genuinely exist. This is the
@@ -3603,7 +3599,7 @@ function pullContactData(input) {
     // specific customer was personally referred (it tracks deal/sales
     // attribution, a different concept). Confirmed by this exact rule
     // being wrong on 4 separate real contacts this session (Devyn, Krish,
-    // Andrew Rose, and implicitly Kristen) — every one had a deal source
+    // Contact L, and implicitly Contact M) — every one had a deal source
     // matching the old keyword list, and every one was actually N on the
     // real tracking sheet. Still manually editable in the dropdown if a
     // rep knows a specific customer genuinely was referred.
@@ -3750,8 +3746,7 @@ function resolveFathomAndFinalize(contactId, ctx) {
   // dedicated training call for this contact. This USED to short-circuit
   // straight to using that date, skipping Fathom entirely — that was
   // wrong: HubSpot's Meetings tab can be genuinely incomplete, not just
-  // imprecise. Confirmed real case: Chris Van Den Biggelaar and Doug
-  // Greschuk each had 4 real, dated onboarding recordings in Fathom —
+  // imprecise. Confirmed real case: Contact N and Contact O each had 4 real, dated onboarding recordings in Fathom —
   // logged under a THIRD person's calendar (a team coordinator helping
   // with setup), so neither contact's own HubSpot Meetings tab ever knew
   // these sessions existed. Skipping the Fathom check here would have
@@ -3785,8 +3780,8 @@ function resolveFathomAndFinalize(contactId, ctx) {
   // yet. That's true for THAT specific scheduled call, but wrong as a
   // reason to give up on Fathom altogether: HubSpot's title-based
   // classification can simply miss a DIFFERENT, already-happened real
-  // onboarding call, the same way it missed Ross Quintero's and Chris/
-  // Doug's. Confirmed real case: Henry Robinson had a genuine "STE ONBD"-
+  // onboarding call, the same way it missed Contact G's and Contact N /
+  // Contact O's. Confirmed real case: Contact K had a genuine "STE ONBD"-
   // tagged call TODAY — his profile shows 3 meetings total but only 2 get
   // classified (1 demo, 1 future training), leaving a third, unclassified
   // meeting unaccounted for, almost certainly today's real session under
@@ -3850,7 +3845,7 @@ function resolveFathomAndFinalize(contactId, ctx) {
     // attribution does (that part still only ever trusts Fathom's
     // recorded_by, per the onboarder/salesperson logic above). Confirmed
     // real gap this closes: Fathom finding SOME but not ALL of the known
-    // real calls (Jordanne Thomas — verified only 1 of 3 "Ramp Up Call"
+    // real calls (Contact I — verified only 1 of 3 "Ramp Up Call"
     // sessions before a rate-limit wall cut the search short) used to let
     // that partial result win outright, since the earlier fallback only
     // applied when Fathom found literally zero — reporting 6/9 (the one
@@ -3864,9 +3859,8 @@ function resolveFathomAndFinalize(contactId, ctx) {
     // resort AFTER actually searching Fathom (per the new past-demo-
     // anchored window above), not a shortcut that skipped the search
     // entirely and could silently miss real recordings HubSpot's own
-    // Meetings tab never knew existed (confirmed real case: Chris Van Den
-    // Biggelaar / Doug Greschuk — 4 real sessions logged under a third
-    // person's calendar; Ross Quintero — a real "STE ONBD"-tagged call
+    // Meetings tab never knew existed (confirmed real case: Contact N / Contact O — 4 real sessions logged under a third
+    // person's calendar; Contact G — a real "STE ONBD"-tagged call
     // titled generically enough to slip past HubSpot's own title logic
     // entirely).
     numCalls = String(Math.max(fathom.totalCount || 0, ctx.knownPastTrainingCount || 0));
@@ -3969,7 +3963,7 @@ function insertRow(row, targetRow) {
 // write into the real production sheet even if SHEET_ID gets pointed
 // there and someone runs this manually from the Apps Script editor.
 function testSheetWrite() {
-  var TEST_ONLY_SHEET_ID = "1YNoQU4uMWbv5gTkgHjPF12JerVzvYRx7ez0Cz39Nyzs";
+  var TEST_ONLY_SHEET_ID = "YOUR_TEST_TRACKING_SHEET_ID_HERE";
   var dummyRow = [
     "TEST USER", "test@example.com", "Test Org Inc.", "Individual",
     "6/30/26", "Test Salesperson", "Test Onboarder", "1", "6/30/26", "N", "N"

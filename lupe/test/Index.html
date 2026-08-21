@@ -259,7 +259,7 @@
       <a id="qlHubspot" class="qlink qlink-header qlink-header-hs hidden" target="_blank" rel="noopener">HubSpot profile ↗</a>
       <a id="qlFathom" class="qlink qlink-header qlink-header-fa hidden" target="_blank" rel="noopener">Fathom recordings ↗</a>
       <a class="qlink qlink-header qlink-header-sheet" target="_blank" rel="noopener"
-         href="https://docs.google.com/spreadsheets/d/1YNoQU4uMWbv5gTkgHjPF12JerVzvYRx7ez0Cz39Nyzs/edit#gid=324023213">Open sheet ↗</a>
+         href="https://docs.google.com/spreadsheets/d/YOUR_TEST_TRACKING_SHEET_ID_HERE/edit#gid=324023213">Open sheet ↗</a>
       <button type="button" id="traceToggleBtn" class="qlink qlink-header qlink-header-trace hidden" onclick="toggleTracePanel()">
         <span id="traceToggleLabel">Show accuracy trace</span>
       </button>
@@ -1033,8 +1033,8 @@
 
   // First name only — everything before the first space in the contact's
   // full name. Safe for this direction even though a simple split isn't
-  // safe for LAST names (e.g. "Chris Van Den Biggelaar" — the last name
-  // is multi-word, but the first name is unambiguously "Chris," correctly
+  // safe for LAST names (e.g. "Contact N" — the last name
+  // is multi-word, but the first name is unambiguously the first word, correctly
   // captured either way). Shared by the default blank state, the real
   // Welcome template, and the placeholder templates, so the greeting
   // always shows consistently regardless of which (if any) is active.
@@ -1898,7 +1898,7 @@
   // client-side fast-path filter). google.script.run gives no guarantee
   // responses arrive in the order they were sent — a broad early query
   // (e.g. "Ben") can take longer server-side than a narrower later one
-  // (e.g. "Ben Reed") and land AFTER it, silently overwriting correct,
+  // (e.g. "Contact A") and land AFTER it, silently overwriting correct,
   // narrower results with stale, broader ones. Each in-flight request
   // captures the token value at the moment it was sent; its handler only
   // applies results if that token still matches the current value —

@@ -28,6 +28,17 @@ rene/
 
 `Landing.html` (the shared chooser page that routes `?app=lupe` / `?app=rene`) isn't included yet — not currently on hand for either environment. Test's `Code.gs` already has the `doGet()` router wired to expect it; Production's `doGet()` intentionally does not have this router and serves LUPE directly as a standalone deployment.
 
+## Privacy / scrubbing notes
+
+Before this was made public, the following were replaced with generic placeholders (real values live only in the actual deployed Apps Script projects):
+
+- Real customer/prospect names and companies used as illustrative examples in bug-fix comments (e.g. "Contact A", "Company A") — the underlying logic and reasoning are unchanged, only the identifying names were swapped
+- Google Sheet IDs (`YOUR_TEST_TRACKING_SHEET_ID_HERE` / `YOUR_PRODUCTION_TRACKING_SHEET_ID_HERE`)
+- The HubSpot owner ID for the always-Thank-You-Card recipient (`YOUR_HUBSPOT_OWNER_ID_HERE`)
+- The five base64-embedded attachment templates in `EmailAttachments.gs` (Contact Import, Properties Import, Outlook Integration, Deal Import Open/Closed) — the file structure and `getProspectsWelcomeAttachments()` logic are intact, but the actual template bytes are stripped. Re-populate these with `Utilities.base64Encode()` of your own real files if deploying this from scratch.
+
+No HubSpot token or Fathom API key was ever present in these files — both are pulled from Script Properties at runtime.
+
 ## Deploying a change
 
 Each environment (`lupe/test/`, `lupe/production/`) maps 1:1 to its own Apps Script project. To deploy:
