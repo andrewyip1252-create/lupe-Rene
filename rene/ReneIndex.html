@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<title>RENE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { background: #f6faf7; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: #111827; }
+  .header { background: #1a2332; padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .back-arrow { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex-shrink: 0; color: #c8d0dc; text-decoration: none; transition: color 0.15s ease; }
+  .back-arrow:hover { color: #e8ecf1; }
+  .header img { height: 28px; width: 28px; }
+  .header .wordmark { font-size: 20px; font-weight: 600; letter-spacing: 0.02em; color: #e8ecf1; }
+  .header .tagline { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; color: #8a94a6; }
+  .body { max-width: 900px; margin: 0 auto; padding: 20px; }
+  .card { background: #fff; border: 1.5px solid #2A8B53; border-radius: 12px; margin-bottom: 16px; }
+  .card-head { background: #1a2332; padding: 9px 16px; font-size: 11px; font-weight: 600; color: #c8d0dc; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 10.5px 10.5px 0 0; }
+  .hidden { display: none; }
+  .card-body { padding: 18px; }
+  input { width: 100%; padding: 9px 12px; border-radius: 7px; border: none; background: #eaf6ef; font-size: 13px; box-sizing: border-box; font-family: inherit; }
+  .btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: #2A8B53; color: #fff; font-family: inherit; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .col-head { font-size: 11px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .col-count { font-size: 10.5px; color: #9ca3af; margin-bottom: 8px; }
+  .col-scroll { max-height: 220px; overflow-y: auto; border: 1px solid #e5eae7; border-radius: 8px; padding: 4px 10px; }
+  .row { padding: 7px 0; border-bottom: 1px solid #eef2ee; font-size: 12.5px; }
+  .row:last-child { border-bottom: none; }
+  .row .name { font-weight: 500; }
+  .row .email { color: #6b7280; font-size: 11.5px; }
+  .row .roles { color: #9ca3af; font-size: 10.5px; margin-top: 1px; }
+  .empty-note { font-size: 12px; color: #9ca3af; padding: 6px 0; }
+  .search-result-row { padding: 9px 12px; cursor: pointer; border-bottom: 1px solid #e5eae7; }
+  .search-result-row:last-child { border-bottom: none; }
+  .alert { padding: 10px 13px; border-radius: 8px; font-size: 12.5px; margin-bottom: 14px; }
+  .alert-warn { background: #fff8e8; color: #8a5d09; border: 1px solid #f0c94a; }
+  .alert-error { background: #fdf1ec; color: #b3543a; border: 1px solid #f3a898; }
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; display: inline-block; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <a href="<?= baseUrl ?>" class="back-arrow" aria-label="Back to tools">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </a>
+<img src="data:image/png;base64,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" alt="" />
+    <div>
+      <div class="wordmark">RENE</div>
+      <div class="tagline">Bulk Onboarding</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="card">
+      <div class="card-head">Company</div>
+      <div class="card-body">
+        <div style="display:flex; gap:8px; position:relative;">
+          <div style="flex:1; position:relative;">
+            <input id="companyInput" placeholder="Paste a HubSpot company URL/ID, or type a company name" oninput="onCompanySearchInput()" autocomplete="off" />
+            <div id="companySearchResults" class="hidden" style="position:absolute; top:calc(100% + 4px); left:0; right:0; background:#ffffff; border:1px solid #cbd5cf; border-radius:8px; max-height:260px; overflow-y:auto; z-index:20; box-shadow:0 8px 24px rgba(20,23,31,0.15);"></div>
+          </div>
+          <button class="btn" id="pullBtn" onclick="pullContacts()" style="white-space:nowrap;">Pull contacts →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultArea"></div>
+  </div>
+
+<script>
+  var searchDebounceTimer = null;
+  var lastCompanySearchQuery = "";
+  var lastCompanySearchResults = [];
+  // Set when a company is picked from the autocomplete dropdown, so the
+  // input box can display the company's real NAME for readability while
+  // the actual pull still uses its true ID underneath. Typing anything
+  // after a selection invalidates this (see onCompanySearchInput below),
+  // since the displayed text no longer reliably corresponds to it.
+  var selectedCompanyId = null;
+
+  function looksLikeCompanyUrlOrId(s) {
+    return s.indexOf("hubspot.com") >= 0 || /^\d+$/.test(s);
+  }
+
+  function matchesRefinedCompanyQuery(result, query) {
+    var hay = (result.name + " " + result.domain).toLowerCase();
+    var words = query.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 0; });
+    return words.every(function(w) { return hay.indexOf(w) >= 0; });
+  }
+
+  function onCompanySearchInput() {
+    selectedCompanyId = null;
+    var val = document.getElementById("companyInput").value.trim();
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+
+    if (!val || val.length < 2 || looksLikeCompanyUrlOrId(val)) {
+      hideCompanySearchResults();
+      return;
+    }
+
+    if (lastCompanySearchQuery && lastCompanySearchResults.length < 10 &&
+        val.toLowerCase().indexOf(lastCompanySearchQuery.toLowerCase()) === 0) {
+      var filtered = lastCompanySearchResults.filter(function(r) { return matchesRefinedCompanyQuery(r, val); });
+      showCompanySearchResults(filtered);
+      return;
+    }
+
+    searchDebounceTimer = setTimeout(function() {
+      google.script.run
+        .withSuccessHandler(function(results) {
+          lastCompanySearchQuery = val;
+          lastCompanySearchResults = results || [];
+          showCompanySearchResults(results);
+        })
+        .withFailureHandler(function() { hideCompanySearchResults(); })
+        .rene_searchCompaniesByName(val);
+    }, 250);
+  }
+
+  function showCompanySearchResults(results) {
+    var box = document.getElementById("companySearchResults");
+    if (!results || !results.length) {
+      box.innerHTML = '<div style="padding:10px 12px; font-size:12px; color:#6b7280;">No matches found.</div>';
+      box.classList.remove("hidden");
+      return;
+    }
+
+    box.innerHTML = results.map(function(r) {
+      var sub = [r.domain, r.location].filter(function(x) { return x; }).join(" · ");
+      return '<div class="search-result-row" data-id="' + r.id + '" ' +
+        'onmousedown="selectCompanySearchResult(\'' + r.id + '\')">' +
+        '<div style="font-size:13px; color:#111827;">' + escapeHtml(r.name) + '</div>' +
+        (sub ? '<div style="font-size:11px; color:#6b7280; margin-top:1px;">' + escapeHtml(sub) + '</div>' : '') +
+        '</div>';
+    }).join("");
+
+    box.querySelectorAll(".search-result-row").forEach(function(row) {
+      row.addEventListener("mouseenter", function() { row.style.background = "#f6faf7"; });
+      row.addEventListener("mouseleave", function() { row.style.background = "transparent"; });
+    });
+
+    box.classList.remove("hidden");
+  }
+
+  function hideCompanySearchResults() {
+    var box = document.getElementById("companySearchResults");
+    box.classList.add("hidden");
+    box.innerHTML = "";
+  }
+
+  function selectCompanySearchResult(companyId) {
+    // Look up the matching result (still held in lastCompanySearchResults
+    // at this point) to get its real name for display — rather than
+    // threading the name through the row's onmousedown attribute, which
+    // would break for any company name containing a quote or apostrophe
+    // (e.g. "O'Brien Realty").
+    var match = lastCompanySearchResults.filter(function(r) { return String(r.id) === String(companyId); })[0];
+    document.getElementById("companyInput").value = match ? match.name : companyId;
+    selectedCompanyId = companyId;
+    lastCompanySearchQuery = "";
+    lastCompanySearchResults = [];
+    hideCompanySearchResults();
+    pullContacts();
+  }
+
+  document.addEventListener("click", function(e) {
+    var box = document.getElementById("companySearchResults");
+    var input = document.getElementById("companyInput");
+    if (box && !box.contains(e.target) && e.target !== input) {
+      hideCompanySearchResults();
+    }
+  });
+
+  function pullContacts() {
+    var input = document.getElementById("companyInput").value.trim();
+    var btn = document.getElementById("pullBtn");
+    var resultArea = document.getElementById("resultArea");
+    if (!input) {
+      resultArea.innerHTML = '<div class="alert alert-warn">Paste a company URL or ID first.</div>';
+      return;
+    }
+
+    // If a company was just picked from the dropdown, the input box shows
+    // its NAME (for readability) — but the actual pull needs the real ID,
+    // captured separately at selection time rather than re-parsed from
+    // the display text (which wouldn't match any URL/ID pattern at all).
+    var idToUse = selectedCompanyId || input;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Pulling…';
+    resultArea.innerHTML = "";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.textContent = "Pull contacts →";
+        renderResult(res);
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.textContent = "Pull contacts →";
+        resultArea.innerHTML = '<div class="alert alert-error">⚠ ' + (err.message || err) + '</div>';
+      })
+      .rene_pullCompanyContacts(idToUse);
+  }
+
+  function renderResult(res) {
+    var resultArea = document.getElementById("resultArea");
+    if (!res || !res.ok) {
+      resultArea.innerHTML = '<div class="alert alert-error">⚠ ' + ((res && res.error) || "Something went wrong.") + '</div>';
+      return;
+    }
+
+    // Whatever the box shows right now (a raw ID pasted directly, or one
+    // passed through from Landing's search dropdown) gets replaced with
+    // the real company name once it's actually known — the same reason
+    // selectCompanySearchResult() already does this for RENE's own
+    // internal dropdown, just applied here too so EVERY successful pull
+    // ends with the friendly name showing, regardless of how the person
+    // arrived at it.
+    if (res.companyName) {
+      document.getElementById("companyInput").value = res.companyName;
+    }
+
+    if (res.needsDealSelection) {
+      renderDealPicker(res);
+      return;
+    }
+
+    var html = "";
+    if (res.warning) {
+      html += '<div class="alert alert-warn">⚠ ' + res.warning + '</div>';
+    }
+
+    // Nothing to show beyond the warning itself (e.g. no OSBO deal found,
+    // or the deal has zero contacts) — skip the empty grid entirely.
+    if (res.totalContacts === 0) {
+      resultArea.innerHTML = html;
+      return;
+    }
+
+    var headerText = escapeHtml(res.companyName);
+    if (res.dealName) headerText += ' — ' + escapeHtml(res.dealName);
+    headerText += ' — ' + res.totalContacts + ' contact(s)';
+
+    html += '<div class="card"><div class="card-head" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
+      '<span>' + headerText + '</span>';
+    if (res.dealId) {
+      html += '<a href="https://app-na2.hubspot.com/contacts/21242237/record/0-3/' + encodeURIComponent(res.dealId) + '" target="_blank" ' +
+        'style="color:#c8d0dc; font-size:11px; font-weight:600; text-transform:none; letter-spacing:normal; text-decoration:none; white-space:nowrap; border:1px solid rgba(255,255,255,0.25); padding:4px 10px; border-radius:6px;">View in HubSpot →</a>';
+    }
+    html += '</div><div class="card-body">';
+    html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">';
+    html += renderColumn("Brokers", res.groups.broker);
+    html += renderColumn("Admin / Transaction Coordinator", res.groups.admin);
+    html += renderColumn("Partner / Owner", res.groups.partner);
+    html += renderColumn("Unlabeled / Unknown", res.groups.unknown);
+    html += '</div></div></div>';
+
+    resultArea.innerHTML = html;
+  }
+
+  // Shown when a company has more than one OSBO-pipeline deal — lets the
+  // person pick which one to pull contacts from, rather than RENE
+  // guessing or silently merging both together.
+  function renderDealPicker(res) {
+    var resultArea = document.getElementById("resultArea");
+    resultArea.innerHTML =
+      '<div class="alert alert-warn">⚠ This company has more than one OSBO Pipeline deal — pick which one to pull contacts from:</div>' +
+      '<div class="card"><div class="card-head">' + escapeHtml(res.companyName) + '</div>' +
+      '<div class="card-body" id="dealPickerBody"></div></div>';
+
+    var body = document.getElementById("dealPickerBody");
+    res.deals.forEach(function(d) {
+      var row = document.createElement("div");
+      row.className = "search-result-row";
+      row.style.cursor = "pointer";
+      row.innerHTML = '<div style="font-size:13px; color:#111827; font-weight:500;">' + escapeHtml(d.name) + '</div>';
+      // Closures over d and res.companyName here — deliberately NOT built
+      // as an inline onclick string, since company/deal names can contain
+      // quotes or apostrophes (e.g. "O'Brien Realty") that would break a
+      // concatenated attribute string.
+      row.addEventListener("click", function() {
+        pullDealContacts(d.id, res.companyName, d.name);
+      });
+      row.addEventListener("mouseenter", function() { row.style.background = "#f6faf7"; });
+      row.addEventListener("mouseleave", function() { row.style.background = "transparent"; });
+      body.appendChild(row);
+    });
+  }
+
+  function pullDealContacts(dealId, companyName, dealName) {
+    var resultArea = document.getElementById("resultArea");
+    resultArea.innerHTML = '<div class="alert alert-warn">Pulling contacts for "' + escapeHtml(dealName) + '"…</div>';
+
+    google.script.run
+      .withSuccessHandler(function(res) { renderResult(res); })
+      .withFailureHandler(function(err) {
+        resultArea.innerHTML = '<div class="alert alert-error">⚠ ' + (err.message || err) + '</div>';
+      })
+      .rene_pullDealContacts(dealId, companyName, dealName);
+  }
+
+  function renderColumn(title, list) {
+    var out = '<div><div class="col-head">' + title + '</div><div class="col-count">' + list.length + ' found</div><div class="col-scroll">';
+    if (!list.length) {
+      out += '<div class="empty-note">None found.</div>';
+    } else {
+      list.forEach(function(c) {
+        out += '<div class="row"><div class="name">' + escapeHtml(c.name) + '</div>' +
+          '<div class="email">' + escapeHtml(c.email) + '</div>' +
+          (c.roles.length ? '<div class="roles">' + escapeHtml(c.roles.join(", ")) + '</div>' : '') +
+          '</div>';
+      });
+    }
+    out += '</div></div>';
+    return out;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // Auto-run: when the shared Landing page's RENE box is used directly
+  // (paste a company there, hit Pull contacts), it navigates here with
+  // that value already in the URL rather than making the person retype
+  // it — this fills the company box and starts the pull immediately on
+  // load, same as if they'd typed it and clicked Pull contacts themselves.
+  var initialQuery = <?!= (typeof initialQuery !== 'undefined' && initialQuery) ? JSON.stringify(initialQuery) : '""' ?>;
+  if (initialQuery) {
+    document.getElementById("companyInput").value = initialQuery;
+    pullContacts();
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<title>LUPE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── CRE OneSource brand theme ────────────────────────────────
+     Colors pulled from the real homepage screenshot + documented brand
+     palette: #2A8B53 "Sea Green" (primary), #D4E8DD "Edgewater" (soft
+     light tint), #000000 "Black". Gray scale is the same
+     widely-vetted Tailwind-style scale Lupe already used for muted text
+     (gray-400 through gray-700) — those values test at roughly
+     2.9:1 / 4.6:1 / 7:1 / 10:1 contrast against white respectively, so
+     the hierarchy here keeps every "secondary/muted" text role at 4.6:1
+     or better, reserving the lightest gray only for decorative or
+     already-large text (matching WCAG AA guidance for normal text). */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #f6faf7; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color: #111827;
+         display: flex; flex-direction: column; overflow: hidden; }
+  .header { background: #1a2332; border-bottom: 1px solid #2a3547; padding: 14px 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .mark { width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .mark svg { width: 28px; height: 28px; display: block; }
+  .mark img { width: 28px; height: 28px; display: block; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1; }
+  .wordmark { font-size: 20px; font-weight: 700; letter-spacing: 0.04em; color: #e8ecf1; }
+  .tagline { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.14em; color: #8a94a6; margin-top: 4px; }
+  .pill { font-size: 9px; padding: 2px 8px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #c8d0dc; border: 1px solid rgba(255,255,255,0.18); font-weight: 600; }
+  .body { max-width: 1120px; width: 100%; margin: 0 auto; padding: 12px 20px 10px;
+          flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .card { background: #ffffff; border: 1px solid #dbe5df; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; flex-shrink: 0;
+          box-shadow: 0 1px 3px rgba(20,23,31,0.04); }
+  .label { display: block; font-size: 10px; font-weight: 700; color: #4b5563; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .section-label { display: block; font-size: 11px; font-weight: 600; color: #c8d0dc; text-transform: uppercase; letter-spacing: 0.05em;
+                    background: #1a2332; margin: -14px -16px 12px -16px; padding: 9px 16px; border-radius: 11px 11px 0 0; }
+  .sub-section-label { display: block; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  input, select { width: 100%; min-width: 0; box-sizing: border-box; padding: 8px 11px; border-radius: 7px; border: none; background: #eaf6ef; color: #111827; font-size: 13px; line-height: 20px; outline: none; font-family: inherit; }
+  input:focus, select:focus { border-color: #2A8B53; box-shadow: 0 0 0 3px rgba(42,139,83,0.15); }
+  input[readonly] { color: #374151; background: #f6faf7; }
+  .row-flex { display: flex; gap: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field-display { padding: 7px 11px; border-radius: 7px; background: #f6faf7; border: none; min-height: 34px; display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 20px; min-width: 0; }
+  .field-editable { padding: 7px 11px; border-radius: 7px; background: #eaf6ef; border: none; min-height: 34px; display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .field-editable input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #111827; font-size: 13px; line-height: 20px; font-family: inherit; padding: 0; }
+  .field-editable:focus-within { border-color: #2A8B53; box-shadow: 0 0 0 3px rgba(42,139,83,0.15); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-hs { background: #ff7a59; }
+  .dot-fa { background: #8b5cf6; }
+  .dot-de { background: #2A8B53; }
+  .dot-sheet { background: #6b7280; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; font-size: 11px; color: #4b5563; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .topbar .legend { margin-bottom: 0; }
+  .quicklinks { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: auto; }
+  .qlink { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; text-decoration: none;
+           padding: 6px 11px; border-radius: 8px; white-space: nowrap; border: 1px solid #dbe5df; background: #ffffff; color: #374151; }
+  .qlink:hover { background: #f6faf7; border-color: #cbd5cf; }
+  .qlink-hs { border-color: rgba(255,122,89,0.45); color: #c2410c; }
+  .qlink-hs:hover { background: rgba(255,122,89,0.08); }
+  .qlink-fa { border-color: rgba(139,92,246,0.4); color: #6d28d9; }
+  .qlink-fa:hover { background: rgba(139,92,246,0.08); }
+  .qlink-trace { font-family: inherit; }
+  .qlink-trace.active { background: rgba(42,139,83,0.12); border-color: rgba(42,139,83,0.45); color: #1f6b40; }
+  .qlink-sheet { border-color: #cfd9d3; color: #4b5563; background: #eef2ee; }
+  .qlink-sheet:hover { background: #e5e9e5; }
+  .header-links { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .qlink-header { padding: 5px 10px; font-size: 11px; border-radius: 20px; }
+  .qlink-header-hs { background: rgba(255,122,89,0.18); color: #ffb08f; }
+  .qlink-header-hs:hover { background: rgba(255,122,89,0.28); }
+  .qlink-header-fa { background: rgba(139,92,246,0.2); color: #c9aefc; }
+  .qlink-header-fa:hover { background: rgba(139,92,246,0.3); }
+  .qlink-header-sheet { background: rgba(255,255,255,0.12); color: #c8d0dc; }
+  .qlink-header-sheet:hover { background: rgba(255,255,255,0.2); }
+  .qlink-header-trace { background: rgba(42,139,83,0.25); color: #7fd9a8; font-family: inherit; }
+  .qlink-header-trace.active { background: rgba(42,139,83,0.4); color: #b8f0d0; }
+  .btn { padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #cbd5cf; background: #ffffff; color: #374151; font-family: inherit; }
+  .btn:hover { background: #f6faf7; }
+  .btn-green { background: rgba(42,139,83,0.12); border: 1px solid rgba(42,139,83,0.5); color: #1f6b40; }
+  .btn-green:hover { background: rgba(42,139,83,0.2); }
+  .btn-success { background: #2A8B53; border: 1px solid #1f6b40; color: #ffffff; }
+  .btn-success:hover { background: #247a48; }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .divider { height: 1px; background: #e5eae7; margin: 14px 0; }
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 12px; margin-bottom: 12px; }
+  .alert-error { background: #fdeceb; border: 1px solid #f3a8a3; color: #b3261e; }
+  .alert-success { background: #eaf6ef; border: 1px solid rgba(42,139,83,0.4); color: #1f6b40; }
+  .alert-warn { background: #fff8e8; border: 1px solid #f0c94a; color: #8a5d09; }
+  .hidden { display: none !important; }
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(42,139,83,0.2); border-top: 2px solid #2A8B53; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status { display: flex; align-items: center; gap: 8px; color: #4b5563; font-size: 12px; }
+  .footer-note { margin-top: auto; padding: 6px 12px; border-radius: 7px; background: #ffffff; border: 1px solid #dbe5df; font-size: 9.5px; color: #6b7280; flex-shrink: 0; }
+  .hint { font-size: 11px; color: #6b7280; margin-top: 6px; }
+  a { color: #1f6b40; }
+  #alert, #inputCard, #fetchingCard { flex-shrink: 0; }
+  #inputCard { border: 1.5px solid #2A8B53; }
+
+  /* ── One-screen dashboard layout ─────────────────────────────
+     #previewWrap becomes a flex column filling the remaining viewport
+     height; .preview-grid splits it into two independently-scrolling
+     columns so the PAGE itself never scrolls. Only a column's own
+     content scrolls, and only if it's actually too tall for the screen
+     (e.g. a long task list) — the action buttons stay pinned at the
+     bottom of the right column so they're always reachable without
+     hunting for a scrollbar. */
+  #previewWrap.hidden { display: none; }
+  #previewWrap { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .preview-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.25fr);
+                  gap: 14px; overflow: hidden; }
+  .preview-grid.with-trace { grid-template-columns: minmax(230px, 0.85fr) minmax(280px, 1.1fr) minmax(240px, 0.85fr); }
+  .preview-col { min-height: 0; overflow-y: auto; padding-right: 2px; }
+  .right-col { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .workflow-scroll { flex: 1; min-height: 0; overflow-y: auto; padding-right: 2px; }
+  .actions-pinned { flex-shrink: 0; padding-top: 4px; }
+
+  /* ── Accuracy trace entries ──────────────────────────────────── */
+  .trace-entry { display: flex; gap: 8px; padding: 7px 0; border-bottom: 1px solid #e5eae7; font-size: 11.5px; line-height: 1.4; }
+  .trace-entry:last-child { border-bottom: none; }
+  .trace-badge { flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                 font-size: 9px; font-weight: 700; margin-top: 1px; }
+  .trace-badge.ok { background: rgba(42,139,83,0.16); color: #1f6b40; }
+  .trace-badge.warn { background: rgba(240,201,74,0.35); color: #8a5d09; }
+  .trace-badge.fail { background: rgba(243,168,163,0.4); color: #b3261e; }
+  .trace-badge.info { background: #e5e9e6; color: #4b5563; }
+  .trace-step { font-weight: 700; color: #1f2937; font-family: 'SF Mono', Consolas, monospace; font-size: 10.5px; }
+  .trace-detail { color: #4b5563; margin-top: 1px; word-break: break-word; }
+
+  @media (max-width: 860px) {
+    /* Not enough width for two columns — fall back to a single stacked,
+       normally-scrolling page (the original layout) rather than
+       squeezing both columns unreadably narrow. */
+    html, body { height: auto; overflow: visible; }
+    body { display: block; }
+    .body { display: block; overflow: visible; padding-bottom: 30px; }
+    #previewWrap { display: block; overflow: visible; }
+    .preview-grid { display: block; overflow: visible; }
+    .preview-col, .workflow-scroll { overflow: visible; }
+  }
+
+  /* ── Custom calendar popover ─────────────────────────────── */
+  .cal-pop { position: absolute; z-index: 100; width: 268px; background: #ffffff; border: 1px solid #dbe5df;
+             border-radius: 12px; padding: 12px 12px 10px; box-shadow: 0 14px 40px rgba(20,23,31,0.18); font-family: inherit; }
+  .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+  .cal-title { display: flex; align-items: baseline; gap: 6px; }
+  .cal-month { font-size: 15px; font-weight: 600; color: #111827; }
+  .cal-year { font-size: 13px; font-weight: 500; color: #111827; background: #f6faf7; border: 1px solid #dbe5df;
+              border-radius: 6px; padding: 2px 4px; outline: none; cursor: pointer; }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-arrow { width: 26px; height: 26px; border-radius: 7px; border: 1px solid #dbe5df; background: #f6faf7;
+               color: #374151; font-size: 14px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .cal-arrow:hover { background: #eaf6ef; color: #1f6b40; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-dow { font-size: 10px; font-weight: 600; color: #6b7280; text-align: center; padding: 4px 0; }
+  .cal-day { height: 30px; display: flex; align-items: center; justify-content: center; font-size: 12.5px;
+             color: #1f2937; border-radius: 50%; cursor: pointer; user-select: none; }
+  .cal-day:hover { background: #eaf6ef; }
+  .cal-day.other { color: #9ca3af; }
+  .cal-day.today { box-shadow: inset 0 0 0 1px rgba(42,139,83,0.6); }
+  .cal-day.selected { background: #2A8B53; color: #fff; font-weight: 600; }
+  .cal-day.selected:hover { background: #247a48; }
+  .cal-foot { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5eae7; }
+  .cal-today-link { font-size: 12px; font-weight: 600; color: #1f6b40; cursor: pointer; background: none; border: none; padding: 2px 0; font-family: inherit; }
+  .cal-today-link:hover { text-decoration: underline; }
+  .wf-task-date-input::placeholder { color: #9ca3af; }
+
+  /* ── Skip Fathom (testing) toggle ────────────────────────────
+     Styled like a deliberate caution/testing-mode switch, not a plain
+     checkbox — reuses the app's existing amber "warning" language
+     (see .alert-warn) since checking it trades away Fathom verification,
+     which is worth being visually unmistakable about rather than a
+     setting that quietly blends into the background. */
+  .fathom-skip-pill { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 9px 12px;
+                       border-radius: 9px; border: 1px solid #dbe5df; background: #f6faf7; cursor: pointer;
+                       transition: background 0.15s ease, border-color 0.15s ease; user-select: none; }
+  .fathom-skip-pill:hover { border-color: #cbd5cf; }
+  .fathom-skip-pill.active { background: #fff8e8; border-color: #f0c94a; }
+  .fathom-skip-icon { flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center;
+                       justify-content: center; background: #e5e9e6; color: #4b5563;
+                       transition: background 0.15s ease, color 0.15s ease; }
+  .fathom-skip-icon svg { width: 14px; height: 14px; display: block; }
+  .fathom-skip-pill.active .fathom-skip-icon { background: rgba(240,201,74,0.35); color: #8a5d09; }
+  .fathom-skip-text { flex: 1; min-width: 0; }
+  .fathom-skip-title { font-size: 12.5px; font-weight: 700; color: #374151; }
+  .fathom-skip-pill.active .fathom-skip-title { color: #8a5d09; }
+  .fathom-skip-sub { font-size: 10.5px; color: #6b7280; margin-top: 1px; }
+  .fathom-skip-switch { flex-shrink: 0; width: 34px; height: 19px; border-radius: 20px; background: #dbe5df;
+                         border: 1px solid #cbd5cf; position: relative; transition: background 0.15s ease, border-color 0.15s ease; }
+  .fathom-skip-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px;
+                                border-radius: 50%; background: #ffffff; box-shadow: 0 1px 2px rgba(20,23,31,0.25); transition: transform 0.15s ease, background 0.15s ease; }
+  .fathom-skip-pill.active .fathom-skip-switch { background: #f0c94a; border-color: #d4af1f; }
+  .fathom-skip-pill.active .fathom-skip-switch::after { transform: translateX(15px); background: #ffffff; }
+
+  /* ── One-click Yes/No task toggle ────────────────────────────── */
+  .yn-btn { border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+            border: 1px solid; text-align: center; padding: 7px 0; font-family: inherit;
+            transition: background 0.12s ease, border-color 0.12s ease; }
+  .yn-yes { background: rgba(42,139,83,0.14); border-color: rgba(42,139,83,0.55); color: #1f6b40; }
+  .yn-yes:hover { background: rgba(42,139,83,0.24); }
+  .yn-no { background: #fdeceb; border-color: #f3a8a3; color: #b3261e; }
+  .yn-no:hover { background: #fbdcda; }
+
+  /* ── Walking mascot ───────────────────────────────────────────
+     Two independent animations: a fast leg/arm alternation (the walk
+     cycle itself) and a slower left-right traverse across its container.
+     The traverse is written as ONE full round-trip in a single set of
+     keyframes (0%→50% walking right, 50%→100% walking left) rather than
+     using animation-direction:alternate — that way the discrete facing-
+     direction flip (scaleX) can happen at an exact instant right as it
+     reaches each edge, instead of interpolating smoothly through a
+     backwards-facing pose mid-stride. The same discrete jump happens
+     naturally at the 100%→0% loop point too, since those two keyframes'
+     scaleX values intentionally differ. */
+  .mascot-track { position: relative; height: 64px; overflow: hidden; margin: 4px 2px 0; }
+  .mascot { position: absolute; bottom: 0; left: 0; width: 40px; height: 56px;
+            animation: mascot-walk-across 9s linear infinite; }
+  .mascot svg { width: 100%; height: 100%; display: block; }
+  .mascot-limb { transform-box: fill-box; }
+  .mascot-leg-l { transform-origin: 50% 0%; animation: mascot-leg-l 0.5s ease-in-out infinite; }
+  .mascot-leg-r { transform-origin: 50% 0%; animation: mascot-leg-r 0.5s ease-in-out infinite; }
+  .mascot-arm-l { transform-origin: 50% 0%; animation: mascot-arm-l 0.5s ease-in-out infinite; }
+  .mascot-arm-r { transform-origin: 50% 0%; animation: mascot-arm-r 0.5s ease-in-out infinite; }
+  @keyframes mascot-leg-l { 0%, 100% { transform: rotate(22deg); } 50% { transform: rotate(-22deg); } }
+  @keyframes mascot-leg-r { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(22deg); } }
+  @keyframes mascot-arm-l { 0%, 100% { transform: rotate(-18deg); } 50% { transform: rotate(18deg); } }
+  @keyframes mascot-arm-r { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-18deg); } }
+  @keyframes mascot-walk-across {
+    0%      { left: 0;                    transform: scaleX(1); }
+    50%     { left: calc(100% - 40px);    transform: scaleX(1); }
+    50.001% { left: calc(100% - 40px);    transform: scaleX(-1); }
+    100%    { left: 0;                    transform: scaleX(-1); }
+  }
+  #hubspotResult, #insertResult { transition: opacity 0.7s ease; }
+  #hubspotResult.fading, #insertResult.fading { opacity: 0; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span class="mark" aria-hidden="true">
+        <img src="data:image/png;base64,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" alt="" />
+      </span>
+      <div class="brand-text">
+        <div class="wordmark">LUPE</div>
+        <div class="tagline">Post-Onboard Tracker</div>
+      </div>
+    </div>
+    <div class="header-links">
+      <a id="qlHubspot" class="qlink qlink-header qlink-header-hs hidden" target="_blank" rel="noopener">HubSpot profile ↗</a>
+      <a id="qlFathom" class="qlink qlink-header qlink-header-fa hidden" target="_blank" rel="noopener">Fathom recordings ↗</a>
+      <a class="qlink qlink-header qlink-header-sheet" target="_blank" rel="noopener"
+         href="https://docs.google.com/spreadsheets/d/1eCSQ8mXfaPmR6N_3GJdBe5j5ZlJ2XuevCuTx1kyPcAQ/edit#gid=324023213">Open sheet ↗</a>
+      <button type="button" id="traceToggleBtn" class="qlink qlink-header qlink-header-trace hidden" onclick="toggleTracePanel()">
+        <span id="traceToggleLabel">Show accuracy trace</span>
+      </button>
+      <span class="pill" style="background: rgba(63,174,109,0.25); color: #c8f0d8; border-color: rgba(63,174,109,0.5); font-weight: 700;">● LIVE — PRODUCTION SHEET</span>
+    </div>
+  </div>
+
+  <div class="body">
+    <div id="alert"></div>
+
+    <!-- Step 1: input -->
+    <div id="inputCard" class="card">
+      <div class="section-label">Find a contact</div>
+      <div class="row-flex">
+        <div style="position:relative; flex:1;">
+          <input id="urlInput" type="text" placeholder="Type a name (e.g. Alan Zwass), or paste a HubSpot URL / ID / email" autocomplete="off" oninput="onSearchInput()" onkeydown="if(event.key==='Escape') hideSearchResults();" />
+          <div id="nameSearchResults" class="hidden" style="position:absolute; top:calc(100% + 4px); left:0; right:0; background:#ffffff; border:1px solid #cbd5cf; border-radius:8px; max-height:260px; overflow-y:auto; z-index:20; box-shadow:0 8px 24px rgba(20,23,31,0.15);"></div>
+        </div>
+        <button id="pullBtn" class="btn btn-green" style="flex-shrink:0; white-space:nowrap;" onclick="pull()">Pull data →</button>
+      </div>
+      <div class="hint">Start typing a name for live matches, or paste any HubSpot URL, contact ID, or email directly.</div>
+      <label id="skipFathomPill" class="fathom-skip-pill" for="skipFathomTesting" title="For contacts with no real Fathom history (like a fake test contact) — skips the Fathom search entirely and uses only the fast HubSpot-based guess for onboarder/salesperson/date. A contact with no real recordings otherwise triggers a full, doomed multi-tier scan that can take 60-100+ seconds before giving up empty, and can rate-limit whatever you test right after it too (Fathom's 60/min limit is shared across your whole account, not per-pull). Leave unchecked for real contacts — Fathom's resolution is what actually verifies/corrects the fast-path guess.">
+        <span class="fathom-skip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </span>
+        <span class="fathom-skip-text">
+          <div class="fathom-skip-title">Skip Fathom</div>
+          <div class="fathom-skip-sub">Fast HubSpot-only guess, unverified — for contacts with no real Fathom history</div>
+        </span>
+        <input type="checkbox" id="skipFathomTesting" onchange="document.getElementById('skipFathomPill').classList.toggle('active', this.checked)" style="position:absolute; opacity:0; width:0; height:0;" />
+        <span class="fathom-skip-switch"></span>
+      </label>
+
+      <div class="mascot-track" aria-hidden="true">
+        <div class="mascot">
+          <svg viewBox="0 0 40 56">
+            <!-- back arm/leg (drawn first so they sit behind the body) -->
+            <line class="mascot-limb mascot-leg-l" x1="18" y1="34" x2="18" y2="50" stroke="#1f6b40" stroke-width="4" stroke-linecap="round"/>
+            <line class="mascot-limb mascot-arm-l" x1="14" y1="20" x2="14" y2="34" stroke="#1f6b40" stroke-width="4" stroke-linecap="round"/>
+            <!-- body -->
+            <circle cx="20" cy="16" r="11" fill="#2A8B53"/>
+            <circle cx="16" cy="14" r="1.6" fill="#ffffff"/>
+            <circle cx="24" cy="14" r="1.6" fill="#ffffff"/>
+            <path d="M15 19 Q20 23 25 19" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <!-- front arm/leg -->
+            <line class="mascot-limb mascot-leg-r" x1="22" y1="34" x2="22" y2="50" stroke="#2A8B53" stroke-width="4" stroke-linecap="round"/>
+            <line class="mascot-limb mascot-arm-r" x1="26" y1="20" x2="26" y2="34" stroke="#2A8B53" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: fetching -->
+    <div id="fetchingCard" class="card hidden">
+      <div class="status"><span class="spinner"></span> <span id="fetchStatus">Pulling data from HubSpot and Fathom…</span></div>
+
+      <div class="mascot-track" aria-hidden="true">
+        <div class="mascot">
+          <svg viewBox="0 0 40 56">
+            <line class="mascot-limb mascot-leg-l" x1="18" y1="34" x2="18" y2="50" stroke="#1f6b40" stroke-width="4" stroke-linecap="round"/>
+            <line class="mascot-limb mascot-arm-l" x1="14" y1="20" x2="14" y2="34" stroke="#1f6b40" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="20" cy="16" r="11" fill="#2A8B53"/>
+            <circle cx="16" cy="14" r="1.6" fill="#ffffff"/>
+            <circle cx="24" cy="14" r="1.6" fill="#ffffff"/>
+            <path d="M15 19 Q20 23 25 19" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+            <line class="mascot-limb mascot-leg-r" x1="22" y1="34" x2="22" y2="50" stroke="#2A8B53" stroke-width="4" stroke-linecap="round"/>
+            <line class="mascot-limb mascot-arm-r" x1="26" y1="20" x2="26" y2="34" stroke="#2A8B53" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: preview -->
+    <div id="previewWrap" class="hidden">
+      <div id="repeatBox" class="alert alert-warn hidden" style="margin-bottom:10px; flex-shrink:0;"></div>
+      <div class="topbar" style="flex-shrink:0;">
+        <div class="legend">
+          <span><span class="dot dot-hs"></span> HubSpot</span>
+          <span><span class="dot dot-fa"></span> Fathom</span>
+          <span><span class="dot dot-de"></span> Auto</span>
+        </div>
+      </div>
+
+      <div class="preview-grid" id="previewGrid">
+        <!-- Left column: contact details + sign-up date. Scrolls on its own
+             if it's ever too tall for the screen; doesn't affect the right
+             column or force the page to scroll. -->
+        <div class="preview-col">
+          <div class="card" style="border-color: #2A8B53; background: #fafdfb;">
+            <div class="section-label">Contact</div>
+
+            <div style="margin-bottom:10px;"><span class="label">User name</span><div class="field-editable"><span class="dot dot-hs"></span><input id="d_name" type="text" /></div></div>
+            <div style="margin-bottom:10px;"><span class="label">User email</span><div class="field-editable"><span class="dot dot-hs"></span><input id="d_email" type="email" /></div></div>
+            <div style="margin-bottom:10px;"><span class="label">Organization</span><div class="field-editable"><span class="dot dot-hs"></span><input id="d_org" type="text" /></div></div>
+
+            <div class="divider"></div>
+            <div class="sub-section-label">Onboard Details</div>
+            <div class="grid3">
+              <div><span class="label">User type</span><select id="f_userType" onchange="renderWorkflowTasks()"><option>Individual</option><option>Team</option></select></div>
+              <div><span class="label">Referral?</span><select id="f_referral"><option>N</option><option>Y</option></select></div>
+              <div><span class="label">Testimonial?</span><select id="f_testimonial"><option>N</option><option>Y</option></select></div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="grid2">
+              <div><span class="label">First onboard date</span><input id="f_onboardDate" type="date" oninput="syncSignupDateFromOnboardDate(); renderWorkflowTasks();" /></div>
+              <div><span class="label">Onboarder</span><select id="f_onboarder" onchange="updateAssigneeLabels()"><option value="">— Select —</option></select></div>
+              <div><span class="label">Salesperson</span><select id="f_salesperson" onchange="updateAssigneeLabels()"><option value="">— Select —</option></select></div>
+              <div><span class="label"># of onboard calls</span><input id="f_numCalls" type="number" value="1" /></div>
+            </div>
+            <div><span class="label">Last onboard call date</span><input id="f_lastCall" type="date" /></div>
+
+            <div id="warnBox" class="alert alert-warn hidden" style="margin-top:12px; margin-bottom:0;"></div>
+          </div>
+
+          <div class="card" style="border-color: #2A8B53; background: #fafdfb;">
+            <div class="section-label">Subscription sign-up date</div>
+            <div id="appDataNote" style="font-size:11px; color:#1f6b40; margin-bottom:8px;"></div>
+            <input id="f_signupDate" type="date" style="max-width:220px;" oninput="updateSignupDerived(); renderWorkflowTasks();" />
+            <div id="signupDerived" style="margin-top:10px; font-size:12px; color:#4b5563;"></div>
+          </div>
+        </div>
+
+        <!-- Right column: workflow + task list (its own scroll area) with the
+             action buttons pinned below, always visible without scrolling. -->
+        <div class="right-col">
+          <div class="workflow-scroll">
+            <div class="card" style="border-color: #2A8B53; background: #fafdfb;">
+              <div class="section-label">Workflow</div>
+
+              <div id="workflowHint" class="hint" style="margin-top:0; margin-bottom:8px;"></div>
+
+              <select id="f_workflow" style="max-width:280px;" onchange="renderWorkflowTasks()">
+                <option value="">— Select a workflow —</option>
+                <option value="suite">OneSource Suite</option>
+                <option value="prospects">OS Prospects Only</option>
+                <option value="dealview">Deal View Only</option>
+              </select>
+
+              <div id="taskListToggleWrap" class="hidden" style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+                <button id="bulkUploadToggleBtn" type="button" class="btn btn-green hidden" style="font-size:12px; padding:6px 12px;" onclick="toggleBulkUploadTemplate()">Send Email</button>
+              </div>
+
+              <div id="workflowTasksContainer" style="margin-top:14px;"></div>
+            </div>
+
+            <!-- Post-Onboard Email — a template panel (right) plus the
+                 compose card (left). Only the "Welcome" template has real
+                 content right now; the other 3 slots are placeholders
+                 until their actual content is written — clicking one
+                 shows a clear "not built yet" note rather than pretending
+                 to be real. Clicking ANY template overwrites whatever's
+                 currently in Subject/Body — no confirmation prompt, per
+                 direct instruction — but the result stays fully editable
+                 afterward, same as the initial auto-loaded content always
+                 has been. -->
+            <div id="postOnboardEmailWrap" class="hidden" style="margin-top:14px; display:flex; gap:12px; align-items:flex-start;">
+              <div id="postOnboardEmailCard" class="card" style="flex:1; min-width:0; border-color: #2A8B53; background: #fafdfb;">
+              <div class="section-label">Post-Onboard Email</div>
+              <div class="hint" style="margin-top:0; margin-bottom:10px;">Available for all workflows — review and edit before sending. Sends from your own Gmail once you click Send. <span id="bccSettingsLink" class="hidden" style="text-decoration:underline; cursor:pointer;" onclick="editMyBccAddress()">· BCC settings</span></div>
+
+              <label style="display:block; font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">To</label>
+              <input type="email" id="emailToInput" style="width:100%; padding:8px 11px; border-radius:7px; border:none; background:#eaf6ef; color:#111827; font-size:13px; margin-bottom:12px;" />
+
+              <label style="display:block; font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Cc (optional)</label>
+              <input type="text" id="emailCcInput" placeholder="name@example.com, another@example.com" style="width:100%; padding:8px 11px; border-radius:7px; border:none; background:#eaf6ef; color:#111827; font-size:13px; margin-bottom:12px;" />
+
+              <label style="display:block; font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Subject</label>
+              <input type="text" id="emailSubjectInput" style="width:100%; padding:8px 11px; border-radius:7px; border:none; background:#eaf6ef; color:#111827; font-size:13px; margin-bottom:12px;" />
+
+              <label style="display:block; font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Body</label>
+              <div id="emailToolbar" style="display:flex; flex-wrap:wrap; gap:4px; padding:6px; border:none; border-radius:7px 7px 0 0; background:#eaf6ef;">
+                <select onchange="document.execCommand('fontName', false, this.value); this.selectedIndex=0;" style="font-size:12px; padding:3px 4px;" title="Font">
+                  <option value="">Font</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="'Courier New'">Courier New</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="Tahoma">Tahoma</option>
+                  <option value="'Times New Roman'">Times New Roman</option>
+                </select>
+                <select onchange="document.execCommand('fontSize', false, this.value); this.selectedIndex=0;" style="font-size:12px; padding:3px 4px;" title="Size">
+                  <option value="">Size</option>
+                  <option value="1">Small</option>
+                  <option value="3">Normal</option>
+                  <option value="5">Large</option>
+                  <option value="7">Huge</option>
+                </select>
+                <button type="button" onclick="document.execCommand('bold')" style="font-weight:700; font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Bold">B</button>
+                <button type="button" onclick="document.execCommand('italic')" style="font-style:italic; font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Italic">I</button>
+                <button type="button" onclick="document.execCommand('underline')" style="text-decoration:underline; font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Underline">U</button>
+                <button type="button" onclick="document.execCommand('strikeThrough')" style="text-decoration:line-through; font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Strikethrough">S</button>
+                <input type="color" onchange="document.execCommand('foreColor', false, this.value)" style="width:26px; height:26px; padding:0; border:1px solid #cfd9d3; border-radius:5px; cursor:pointer;" title="Text color" value="#000000" />
+                <button type="button" onclick="document.execCommand('insertUnorderedList')" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Bullet list">• List</button>
+                <button type="button" onclick="document.execCommand('insertOrderedList')" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Numbered list">1. List</button>
+                <button type="button" onclick="document.execCommand('justifyLeft')" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Align left">⟸</button>
+                <button type="button" onclick="document.execCommand('justifyCenter')" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Align center">≡</button>
+                <button type="button" onclick="insertEmailLink()" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Insert link">🔗</button>
+                <button type="button" onclick="document.execCommand('removeFormat')" style="font-size:12px; padding:4px 9px; border-radius:5px; border:1px solid #cfd9d3; background:#fff; cursor:pointer;" title="Clear formatting">Clear</button>
+              </div>
+              <div id="emailBodyEditor" contenteditable="true" style="min-height:280px; max-height:480px; overflow-y:auto; padding:12px 14px; border:none; border-radius:0 0 7px 7px; background:#fff; font-size:13.5px; line-height:1.5; color:#1f2937;"></div>
+
+              <!-- Signature — one-time setup per person. GmailApp.sendEmail
+                   does NOT auto-include a signature the way Gmail's own
+                   compose window does (confirmed directly — this is a
+                   real, long-standing Apps Script limitation, not
+                   something togglable). Stored via PropertiesService's
+                   USER properties, which are scoped per accessing person
+                   once the deployment runs as "User accessing the web
+                   app" — the same setting this whole feature already
+                   needs for correct send attribution, so this piggybacks
+                   on that same mechanism rather than needing anything
+                   extra. Each onboarder sets their own signature once;
+                   after that it's remembered and just shown as a summary. -->
+              <div id="signatureSetupSection" style="margin-top:16px; padding:12px; border:1px solid #cfd9d3; border-radius:8px; background:#f9fafb;">
+                <div style="font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Your Signature</div>
+                <div id="signatureLoadingNote" class="hint" style="margin:0;">Checking for a saved signature…</div>
+                <div id="signatureSavedView" class="hidden">
+                  <div id="signatureSavedPreview" style="font-size:12.5px; color:#374151; padding:8px; background:#fff; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:8px; max-height:120px; overflow-y:auto;"></div>
+                  <button type="button" class="btn" style="font-size:12px; padding:5px 10px;" onclick="editMySignature()">Edit signature</button>
+                  <span class="hint" style="margin:0 0 0 8px;">Auto-added to every email you send below.</span>
+                </div>
+                <div id="signatureEditView" class="hidden">
+                  <div class="hint" style="margin:0 0 6px;">Paste or type your signature once — it's saved to your account and reused automatically going forward.</div>
+                  <div id="signatureEditor" contenteditable="true" style="min-height:100px; padding:10px; border:none; border-radius:7px; background:#eaf6ef; font-size:13px; line-height:1.5; margin-bottom:8px;"></div>
+                  <button type="button" class="btn btn-success" style="font-size:12px; padding:6px 12px;" onclick="saveMySignature()">Save signature</button>
+                  <button type="button" id="cancelSignatureEditBtn" class="btn hidden" style="font-size:12px; padding:6px 12px;" onclick="cancelSignatureEdit()">Cancel</button>
+                </div>
+              </div>
+
+              <!-- HubSpot BCC logging address — same one-time-setup pattern
+                   as the signature above, same PropertiesService USER-scoped
+                   storage mechanism. REQUIRED before sending (unlike the
+                   optional-feeling signature), since the whole point is
+                   making sure every email actually gets logged to the
+                   contact's HubSpot timeline — skipping it silently would
+                   mean activity quietly going untracked. Each onboarder's
+                   BCC address is personal to their own HubSpot user login
+                   (Settings → Objects → Activities → Email Log & Track tab
+                   → Manual Logging → Copy next to BCC Address) — never
+                   shared across onboarders the way a single team address
+                   would be. -->
+              <div id="bccSetupSection" style="margin-top:12px; padding:12px; border:1px solid #cfd9d3; border-radius:8px; background:#f9fafb;">
+                <div style="font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Your HubSpot BCC Address <span style="color:#b3261e;">(required)</span></div>
+                <div id="bccLoadingNote" class="hint" style="margin:0;">Checking for a saved BCC address…</div>
+                <div id="bccSavedView" class="hidden">
+                  <div id="bccSavedPreview" style="font-size:12.5px; color:#374151; padding:8px; background:#fff; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:8px;"></div>
+                  <button type="button" class="btn" style="font-size:12px; padding:5px 10px;" onclick="editMyBccAddress()">Edit BCC address</button>
+                  <span class="hint" style="margin:0 0 0 8px;">Every email below is BCC'd here so HubSpot logs it to the contact's timeline.</span>
+                </div>
+                <div id="bccEditView" class="hidden">
+                  <div class="hint" style="margin:0 0 6px;">
+                    Find yours in HubSpot: Settings → Objects → Activities → Email Log &amp; Track tab → Manual Logging → Copy next to BCC Address. This is personal to your own HubSpot login — don't use a teammate's.
+                  </div>
+                  <input type="email" id="bccAddressInput" placeholder="e.g. yourname-xxxxxxx@bcc.hubspot.com" style="width:100%; padding:8px 11px; border-radius:7px; border:none; background:#eaf6ef; color:#111827; font-size:13px; margin-bottom:8px;" />
+                  <button type="button" class="btn btn-success" style="font-size:12px; padding:6px 12px;" onclick="saveMyBccAddress()">Save BCC address</button>
+                  <button type="button" id="cancelBccEditBtn" class="btn hidden" style="font-size:12px; padding:6px 12px;" onclick="cancelBccEdit()">Cancel</button>
+                </div>
+              </div>
+
+              <div id="emailSendResult" style="margin-top:8px;"></div>
+              <button type="button" id="sendEmailBtn" class="btn btn-success" style="margin-top:10px;" onclick="confirmSendPostOnboardEmail()">Send Email →</button>
+              </div>
+
+              <div style="width:170px; flex-shrink:0; background:#fff; border:1px solid #2A8B53; border-radius:10px; background-color:#fafdfb; padding:14px;">
+                <!-- Attachments — only shown for templates that actually
+                     support them (Welcome and OS Prospects Welcome, for
+                     now). Each file is embedded directly in the script
+                     itself (see EmailAttachments.gs) since the originals
+                     are private Slack file links that require being
+                     logged into the workspace to access — Apps Script
+                     running server-side has no session for that, so
+                     fetching them at send time would never have worked.
+                     Purely opt-in: nothing is attached unless its
+                     checkbox is checked. -->
+                <div id="attachmentToggleSection" class="hidden">
+                  <div style="font-size:11px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Attach files?</div>
+                  <div id="attachmentCheckboxList"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions-pinned">
+            <div id="fathomPendingNote" style="display:none; font-size:11px; color:#4b5563; margin-bottom:8px; align-items:center; gap:6px;">
+              <span class="spinner" style="width:11px; height:11px; border-width:2px;"></span>
+              Fathom still resolving onboard date / call count — you can insert now with what's shown, or wait.
+            </div>
+            <div style="background:#fff; border:1.5px solid #d7e8dd; border-radius:10px; padding:14px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <!-- Start Over sits inside this same bar, not below the
+                   result lists — hubspotResult can grow to 9-16 lines
+                   (one per task action) with no bound on it, which used
+                   to silently push this button below the visible
+                   viewport with no way to reach it. Keeping it right
+                   here means it's always reachable regardless of how
+                   many result lines pile up below. -->
+              <button id="insertBtn" class="btn" style="background:#2A8B53; color:#fff; border:none; padding:8px 12px; font-size:12.5px;" onclick="doInsert()">Insert row into production sheet →</button>
+              <button id="assignBtn" class="btn" style="background:rgba(42,139,83,0.12); border:1.5px solid rgba(42,139,83,0.5); color:#1f6b40; padding:8px 12px; font-size:12.5px;" onclick="doAssignTasks()">Assign tasks in HubSpot →</button>
+              <button class="btn" style="background:#fff; border:1.5px solid #cfd9d3; color:#6b7280; margin-left:auto; padding:8px 12px; font-size:12.5px;" onclick="resetApp()">Start over</button>
+            </div>
+
+            <div id="resultsScroll" style="max-height:130px; overflow-y:auto; margin-top:10px;">
+              <div id="insertResult" style="margin-bottom:6px;"></div>
+              <div id="hubspotResult" style="margin-bottom:6px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accuracy trace sidebar: hidden by default, toggled via the
+             "Show accuracy trace" button. Renders the full backend resolution
+             log delivered with the pull response — NOT a live stream (Apps
+             Script's google.script.run is a single request/response, so this
+             fills in all at once once pullContactData returns, not
+             progressively while it runs). -->
+        <div id="traceCol" class="preview-col hidden">
+          <div class="card" style="border-color: #2A8B53; background: #fafdfb; margin-bottom:10px;">
+            <div class="section-label">AI accuracy check</div>
+            <p style="font-size:11px; color:#6b7280; margin-bottom:10px;">
+              A real AI second-opinion pass on Lupe's own classification and rep-assignment logic — catches things a keyword rule can't judge for itself.
+            </p>
+            <div id="aiCheckBox"></div>
+          </div>
+          <div class="card" style="border-color: #2A8B53; background: #fafdfb;">
+            <div class="section-label">Accuracy trace</div>
+            <p style="font-size:11px; color:#6b7280; margin-bottom:10px;">
+              Every source Lupe checked and what it decided, in order. Delivered in full once the pull completes.
+            </p>
+            <div id="traceList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+<script>
+  var currentRow = null;
+  var currentContactId = null;
+  var existingRowNumber = null; // null = new contact, number = updating this existing row
+
+  // ── Custom calendar date picker ──────────────────────────────────
+  // Replaces the native <input type="date"> on task rows with a popover
+  // calendar that opens to the month relevant to the task, has month
+  // arrows + a year selector, a full day grid, and a "Today" shortcut.
+  // The chosen date is stored on the input as data-iso ("YYYY-MM-DD"),
+  // which is what the submit logic reads — the visible field just shows a
+  // friendly formatted label.
+  var MONTH_NAMES = ["January","February","March","April","May","June",
+                     "July","August","September","October","November","December"];
+  var DOW = ["S","M","T","W","T","F","S"];
+  var calState = { input: null, year: 0, month: 0 }; // month is 0-indexed
+
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  // "YYYY-MM-DD" -> "Jun 12, 2026" (pure string parse, no Date/UTC drift)
+  function displayFromIso(iso) {
+    if (!iso) return "";
+    var p = String(iso).slice(0, 10).split("-");
+    if (p.length !== 3) return "";
+    var y = parseInt(p[0], 10), m = parseInt(p[1], 10), d = parseInt(p[2], 10);
+    if (!y || !m || !d) return "";
+    return MONTH_NAMES[m - 1].slice(0, 3) + " " + d + ", " + y;
+  }
+
+  function ensureCalPop() {
+    var pop = document.getElementById("calPop");
+    if (pop) return pop;
+    pop = document.createElement("div");
+    pop.id = "calPop";
+    pop.className = "cal-pop hidden";
+    document.body.appendChild(pop);
+    return pop;
+  }
+
+  function openCalendar(input) {
+    ensureCalPop();
+    calState.input = input;
+    // Initialize the view to the task's current date, else its SOP default, else today.
+    var seed = input.getAttribute("data-iso") || input.getAttribute("data-default-due") || todayIso();
+    var parts = String(seed).slice(0, 10).split("-");
+    var now = new Date();
+    calState.year  = parts.length === 3 ? parseInt(parts[0], 10) : now.getFullYear();
+    calState.month = parts.length === 3 ? (parseInt(parts[1], 10) - 1) : now.getMonth();
+    renderCalendar();
+    positionCalPop(input);
+    document.getElementById("calPop").classList.remove("hidden");
+  }
+
+  function closeCalendar() {
+    var pop = document.getElementById("calPop");
+    if (pop) pop.classList.add("hidden");
+    calState.input = null;
+  }
+
+  function positionCalPop(input) {
+    var pop = document.getElementById("calPop");
+    var r = input.getBoundingClientRect();
+    var top = r.bottom + window.scrollY + 6;
+    var left = r.left + window.scrollX;
+    // Flip above if it would overflow the viewport bottom.
+    var popH = pop.offsetHeight || 320;
+    if (r.bottom + popH + 10 > window.innerHeight) top = r.top + window.scrollY - popH - 6;
+    // Keep within the right edge.
+    var popW = pop.offsetWidth || 268;
+    if (left + popW + 8 > window.scrollX + window.innerWidth) left = window.scrollX + window.innerWidth - popW - 8;
+    if (left < window.scrollX + 6) left = window.scrollX + 6;
+    pop.style.top = top + "px";
+    pop.style.left = left + "px";
+  }
+
+  function calYearOptions(selectedYear) {
+    var start = selectedYear - 5, end = selectedYear + 6;
+    var out = "";
+    for (var y = start; y <= end; y++) {
+      out += '<option value="' + y + '"' + (y === selectedYear ? " selected" : "") + '>' + y + '</option>';
+    }
+    return out;
+  }
+
+  function renderCalendar() {
+    var pop = document.getElementById("calPop");
+    var selIso = calState.input ? (calState.input.getAttribute("data-iso") || "") : "";
+    var tIso = todayIso();
+
+    var first = new Date(calState.year, calState.month, 1);
+    var startDow = first.getDay(); // 0=Sun
+    var daysInMonth = new Date(calState.year, calState.month + 1, 0).getDate();
+    var daysPrev = new Date(calState.year, calState.month, 0).getDate();
+
+    var cells = "";
+    // leading days from previous month
+    for (var i = 0; i < startDow; i++) {
+      var dp = daysPrev - startDow + 1 + i;
+      cells += '<div class="cal-day other">' + dp + '</div>';
+    }
+    // this month's days
+    for (var d = 1; d <= daysInMonth; d++) {
+      var iso = calState.year + "-" + pad2(calState.month + 1) + "-" + pad2(d);
+      var cls = "cal-day";
+      if (iso === selIso) cls += " selected";
+      if (iso === tIso) cls += " today";
+      cells += '<div class="' + cls + '" onclick="pickCalDay(\'' + iso + '\')">' + d + '</div>';
+    }
+    // trailing days to fill the last week
+    var total = startDow + daysInMonth;
+    var trail = (7 - (total % 7)) % 7;
+    for (var j = 1; j <= trail; j++) {
+      cells += '<div class="cal-day other">' + j + '</div>';
+    }
+
+    var dowRow = DOW.map(function(x) { return '<div class="cal-dow">' + x + '</div>'; }).join("");
+
+    pop.innerHTML =
+      '<div class="cal-head">' +
+        '<div class="cal-title">' +
+          '<span class="cal-month">' + MONTH_NAMES[calState.month] + '</span>' +
+          '<select class="cal-year" onchange="calSetYear(this.value)">' + calYearOptions(calState.year) + '</select>' +
+        '</div>' +
+        '<div class="cal-nav">' +
+          '<button type="button" class="cal-arrow" onclick="calShiftMonth(-1)" aria-label="Previous month">&#8249;</button>' +
+          '<button type="button" class="cal-arrow" onclick="calShiftMonth(1)" aria-label="Next month">&#8250;</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cal-grid">' + dowRow + cells + '</div>' +
+      '<div class="cal-foot"><button type="button" class="cal-today-link" onclick="calGoToday()">Today</button></div>';
+  }
+
+  function calShiftMonth(delta) {
+    calState.month += delta;
+    if (calState.month < 0) { calState.month = 11; calState.year--; }
+    else if (calState.month > 11) { calState.month = 0; calState.year++; }
+    renderCalendar();
+    positionCalPop(calState.input);
+  }
+
+  function calSetYear(y) {
+    calState.year = parseInt(y, 10);
+    renderCalendar();
+  }
+
+  // "Today" jumps the view to the current month AND selects today.
+  function calGoToday() {
+    var now = new Date();
+    calState.year = now.getFullYear();
+    calState.month = now.getMonth();
+    pickCalDay(todayIso());
+  }
+
+  function pickCalDay(iso) {
+    var input = calState.input;
+    if (!input) return;
+    input.setAttribute("data-iso", iso);
+    input.setAttribute("data-edited", "1");
+    input.value = displayFromIso(iso);
+    closeCalendar();
+  }
+
+  // Close the calendar on outside click / Escape.
+  document.addEventListener("mousedown", function(e) {
+    var pop = document.getElementById("calPop");
+    if (!pop || pop.classList.contains("hidden")) return;
+    if (pop.contains(e.target)) return;
+    if (calState.input && e.target === calState.input) return;
+    closeCalendar();
+  });
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeCalendar();
+  });
+
+  function show(id) { document.getElementById(id).classList.remove("hidden"); }
+  function hide(id) { document.getElementById(id).classList.add("hidden"); }
+
+  // Sets a quick-link's href and shows it; hides it if there's no URL.
+  function setQuickLink(id, url) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (url) { el.href = url; el.classList.remove("hidden"); }
+    else { el.removeAttribute("href"); el.classList.add("hidden"); }
+  }
+
+  function setAlert(type, msg) {
+    var el = document.getElementById("alert");
+    if (!msg) { el.innerHTML = ""; return; }
+    el.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>';
+  }
+
+  // ── Sign-up date math ───────────────────────────────────────────
+  // SOP rules: renewal = signup + 365 days. 90-day renewal call = that
+  // minus 90 days. Refund tasks (Suite/Prospects only) sit inside a
+  // 60-day onboarding window from signup: halfway (30d), 3-days-before
+  // final warning (57d), and the 60-day mark itself. Any date landing on
+  // a weekend pushes to the following Monday.
+  function addDays(dateStr, n) {
+    var d = new Date(dateStr + "T12:00:00"); // noon avoids any DST edge cases
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+  function pushOffWeekend(d) {
+    var day = d.getDay(); // 0 = Sunday, 6 = Saturday
+    if (day === 6) d.setDate(d.getDate() + 2);
+    else if (day === 0) d.setDate(d.getDate() + 1);
+    return d;
+  }
+  function fmt(d) {
+    return (d.getMonth() + 1) + "/" + d.getDate() + "/" + String(d.getFullYear()).slice(2);
+  }
+
+  function updateSignupDerived() {
+    var val = document.getElementById("f_signupDate").value;
+    var box = document.getElementById("signupDerived");
+    if (!val) { box.innerHTML = ""; return; }
+
+    var renewal = addDays(val, 365);
+    var ninetyBefore = pushOffWeekend(addDays(val, 275)); // 365 - 90
+    var refund30 = pushOffWeekend(addDays(val, 30));
+    var refund57 = pushOffWeekend(addDays(val, 57)); // 3 days before the 60-day mark
+    var refund60 = pushOffWeekend(addDays(val, 60));
+
+    box.innerHTML =
+      '<div>Renewal date: <strong style="color:#6d28d9;">' + fmt(renewal) + '</strong></div>' +
+      '<div>90-day renewal call due: <strong style="color:#6d28d9;">' + fmt(ninetyBefore) + '</strong></div>' +
+      '<div style="margin-top:6px; color:#6b7280;">Refund tasks (Suite/Prospects only):</div>' +
+      '<div>&nbsp;&nbsp;30-day halfway: <strong style="color:#6d28d9;">' + fmt(refund30) + '</strong></div>' +
+      '<div>&nbsp;&nbsp;57-day final warning: <strong style="color:#6d28d9;">' + fmt(refund57) + '</strong></div>' +
+      '<div>&nbsp;&nbsp;60-day mark: <strong style="color:#6d28d9;">' + fmt(refund60) + '</strong></div>';
+  }
+
+  // ── Workflow task definitions ───────────────────────────────────
+  // handled:true = this task's action already has its own dedicated
+  // control elsewhere in the UI (Task 1 = the sheet write itself;
+  // whichever task is "contact owner" = the Task 3 toggle above; whichever
+  // is "thank you card" = the Task 4 toggle above) — shown here for
+  // reference with its own control disabled, so the full SOP list stays
+  // visible without creating duplicate controls for the same action.
+  var WORKFLOW_TASKS = {
+    suite: [
+      { num: 1,  type: "General Task", title: "Add / Update Customer Success Tracking Sheet", due: "day1", assignee: "onboarder", handled: "sheet" },
+      { num: 2,  type: "Text",         title: "Text Client", due: "day1", assignee: "onboarder" },
+      { num: 3,  type: "General Task", title: "Update Contact Owner", due: "day1", assignee: "onboarder", handled: "owner" },
+      { num: 4,  type: "General Task", title: "Write and Mail a Thank You Card", due: "day1", assignee: "peter", handled: "thankyou" },
+      { num: 5,  type: "General Task", title: "Add them and their team on LinkedIn", due: "day1", assignee: "onboarder" },
+      { num: 6,  type: "Email",        title: "Email - Did they send contact bulk upload? Did they upload Closed Deals?", due: "day1", assignee: "onboarder" },
+      { num: 7,  type: "General Task", title: "Add to Post Onboard Workflow", due: "day1", assignee: "onboarder", handled: "workflow_enroll", flowId: "1650543163", workflowName: "STE Customer Success: Post-Onboarding Email Sequence (Momentum Series)" },
+      { num: 8,  type: "Call",         title: "5 Weeks - Call - Favorite part of OneSource? What drives you crazy? Anyone else in your office or your market we should be talking to?", due: {kind:"weeks", n:5}, assignee: "onboarder" },
+      { num: 9,  type: "General Task", title: "ONBD - Salesperson check in (3 weeks) If Dormant move 1 month check in to the same week", due: {kind:"weeks", n:3}, assignee: "onboarder" },
+      { num: 10, type: "Call",         title: "ONBD - Salesperson check in (2 months); see notes", due: {kind:"months", n:2}, assignee: "salesperson" },
+      { num: 11, type: "General Task", title: "Email - You've been on OneSource for 3 months. You originally signed up for _____, _____, etc. Have your expectations been met thus far?", due: {kind:"months", n:3}, assignee: "onboarder" },
+      { num: 12, type: "General Task", title: "90 days before annual renewal - Call. OBC in Notes.", due: {kind:"signupRenewalMinus90"}, assignee: "onboarder" },
+      { num: 13, type: "General Task", title: "Onboard fee refund halfway (30 days)", due: {kind:"signupDays", n:30}, assignee: "onboarder" },
+      { num: 14, type: "General Task", title: "Set for 3 days before final warning (3 days before 60 days)", due: {kind:"signupDays", n:57}, assignee: "onboarder" },
+      { num: 15, type: "General Task", title: "60 Days is up for refund (Stripe refund?)", due: {kind:"signupDays", n:60}, assignee: "onboarder" }
+    ],
+    prospects: [
+      { num: 1,  type: "General Task", title: "Add / Update Customer Success Tracking Sheet", due: "day1", assignee: "onboarder", handled: "sheet" },
+      { num: 2,  type: "General Task", title: "Update Contact Owner to the Onboarder's Name", due: "day1", assignee: "onboarder", handled: "owner" },
+      { num: 3,  type: "General Task", title: "Add them and their team on LinkedIn", due: "day1", assignee: "onboarder" },
+      { num: 4,  type: "Email",        title: "Did they send contact bulk upload?", due: "day1", assignee: "onboarder" },
+      { num: 5,  type: "Text",         title: "Send Text Message", due: "day1", assignee: "onboarder" },
+      { num: 6,  type: "General Task", title: "Add to Customer Success: Prospects Post Onboard Helpful Hints Workflow", due: "day1", assignee: "onboarder", handled: "workflow_enroll", flowId: "1652668252", workflowName: "OSP Customer Success: Post-Onboarding Email Sequence" },
+      { num: 7,  type: "General Task", title: "Write and Mail a Thank You Card", due: "day1", assignee: "peter", handled: "thankyou" },
+      { num: 8,  type: "Call",         title: "5 weeks - Call - Favorite part of OS Prospects? etc.", due: {kind:"weeks", n:5}, assignee: "onboarder" },
+      { num: 9,  type: "General Task", title: "ONBD - Salesperson check in (3 weeks)", due: {kind:"weeks", n:3}, assignee: "onboarder" },
+      { num: 10, type: "Call",         title: "ONBD - Salesperson check in (2 months); see notes", due: {kind:"months", n:2}, assignee: "salesperson" },
+      { num: 11, type: "General Task", title: "Email - 3 months on OS Prospects, expectations met?", due: {kind:"months", n:3}, assignee: "onboarder" },
+      { num: 12, type: "General Task", title: "90 days before annual renewal - Call. OBC in Notes.", due: {kind:"signupRenewalMinus90"}, assignee: "onboarder" },
+      { num: 13, type: "General Task", title: "Onboard fee refund halfway (30 days)", due: {kind:"signupDays", n:30}, assignee: "onboarder" },
+      { num: 14, type: "General Task", title: "3 days before 60 days", due: {kind:"signupDays", n:57}, assignee: "onboarder" },
+      { num: 15, type: "General Task", title: "60 Days is up for refund (Stripe refund?)", due: {kind:"signupDays", n:60}, assignee: "onboarder" },
+      { num: 16, type: "General Task", title: "Salesperson or onboarder look to upsell to DV", due: {kind:"months", n:4}, assignee: "onboarder" }
+    ],
+    dealview: [
+      { num: 1, type: "General Task", title: "Add / Update Customer Success Tracking Sheet", due: "day1", assignee: "onboarder", handled: "sheet" },
+      { num: 2, type: "General Task", title: "Write and Mail a Thank You Card", due: "day1", assignee: "peter", handled: "thankyou",
+        notes: "Option 1:\n\n{First Name},\nThank you for believing in Deal View! We are truly grateful to have you as a customer. Keep this card on your desk to help you develop your habit of adding and reviewing your deals every Friday {Or review Deal View in your team meetings}. Our goal is to have Deal View serve you and enable you to achieve bigger and better things in brokerage {Or insert one of their goals}. We are here to help you be successful.\n\nThanks again,\nCharlie Coppola\n\n\nOption 2:\n{First Name},\nWe want to extend our heartfelt gratitude to you for choosing Deal View. It is customers like you who inspire us to strive for excellence every day.\n\nDeal View is designed to serve and empower you. As you leverage Deal View in your team meetings, our primary goal is {insert goal}.\n\nThank you once again for believing in Deal View. We look forward to helping you achieve bigger and better things in brokerage.\n\nThanks again,\nCharlie Coppola" },
+      { num: 3, type: "General Task", title: "Add them and their team on LinkedIn", due: "day1", assignee: "onboarder" },
+      { num: 4, type: "General Task", title: "Email - Did they send bulk upload? Did they add all their current deals? How did it go? What questions came up?", due: "day1", assignee: "onboarder" },
+      { num: 5, type: "Call",         title: "Call - Favorite part of Deal View? What drives you crazy? Anyone else in your office or your market we should be talking to?", due: "day1", assignee: "onboarder" },
+      { num: 6, type: "General Task", title: "ONBD - Salesperson call & check in. Ask how first week has been", due: {kind:"weeks", n:2}, assignee: "salesperson" },
+      { num: 7, type: "Call",         title: "ONBD - Salesperson call & check in. Ask how onboard is going.", due: {kind:"months", n:2}, assignee: "salesperson" },
+      { num: 8, type: "General Task", title: "Email - You've been on Deal View for 3 months. You originally signed up for _____, _____, etc. Have your expectations been met thus far?", due: {kind:"months", n:3}, assignee: "onboarder" },
+      { num: 9, type: "General Task", title: "90 days before annual renewal - Call. OBC in Notes", due: {kind:"signupRenewalMinus90"}, assignee: "onboarder",
+        notes: "\"90 days out from renewal, we review the data, and share the good, bad, ugly and hear your feedback as well. Are you open to a 15-minute Zoom?\"\n\nBefore the Zoom:\n- Look at Customer Success Tracking sheet and identify any underutilized features\n- Identify 1-3 new features we've recently deployed\n\nOn the Zoom:\n- Right at the beginning - \"Renewal is in 90 days on {Date}. We'd love to keep you. How's the experience been?\"\n- Answer any questions or address any feedback\n- Discuss opportunities for improvement\n- Share 1-3 new features we've recently deployed\n- Try to lock down a commitment to renew for another year" }
+    ]
+  };
+
+  function isoOf(d) {
+    var mm = ("0" + (d.getMonth() + 1)).slice(-2);
+    var dd = ("0" + d.getDate()).slice(-2);
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  // Maps the "Products" value from the "All Data - Lookup" tab to one of our three
+  // workflow keys. Real values include combos like "Deal View Pro, Prospects"
+  // or "Back Office, OneSource Suite" for customers on more than one
+  // product — each comma-separated part is checked independently.
+  //
+  // IMPORTANT: onPullSuccess uses this to decide whether to auto-select a
+  // workflow or leave it blank for manual choice — the rule is "auto-fill
+  // on a confident single match, never guess otherwise." A single
+  // unambiguous product match (key set, not ambiguous) auto-fills the
+  // dropdown; anything less certain — multiple products found (ambiguous),
+  // a product with no onboarding sequence at all (noWorkflowNeeded), an
+  // unrecognized product string, or no All Data - Lookup match — leaves the
+  // dropdown blank with an explanatory hint instead of picking something.
+  // The dropdown itself is never hidden in either case, so overriding an
+  // auto-fill is always just one click away.
+  //
+  // Returns { key, matches, ambiguous, noWorkflowNeeded } where:
+  //   key              = the workflow to auto-select ("" if none/ambiguous)
+  //   matches          = SOP workflow names actually found in the string
+  //   ambiguous        = true if MORE THAN ONE of our 3 workflows was found
+  //   noWorkflowNeeded = true if the only products found are ones known to
+  //                      have no onboarding sequence (Enterprise/Back Office)
+  var WORKFLOW_DISPLAY_NAMES = { suite: "OneSource Suite", prospects: "OS Prospects Only", dealview: "Deal View Only" };
+
+  // Post-Onboard Email — OneSource Suite only. Real markdown-style
+  // links/bullets from the original content are converted to actual HTML
+  // here (real <a href> links, real <ul><li> bullets) so they render and
+  // send correctly, rather than as literal bracket-text. No greeting line
+  // at the top, per direct instruction — starts straight into the body.
+  var POST_ONBOARD_EMAIL_SUBJECT = "Welcome! Your Quick Start Guide + Helpful How-To\u2019s";
+  var POST_ONBOARD_EMAIL_BODY_HTML =
+    '<p>Hi {{firstName}},</p>' +
+    '<p>It was great chatting with you today. Really looking forward to partnering with you and continuing to find ways to help you improve your business.</p>' +
+    '<p>To help you hit the ground running, we\u2019ve put together everything you need to be successful with OneSource in this email.</p>' +
+    '<p><b>Best starting practice:</b></p>' +
+    '<ul>' +
+      '<li>Create a recurring calendar invite in your calendar to get into OneSource</li>' +
+      '<li>Add your top 40-50 Prospects.</li>' +
+      '<li>Use the app when you are not near your computer to update clients or deals.</li>' +
+      '<li>Review the Quick Start Guide</li>' +
+      '<li>Explore the Scenario-Based Guides most relevant to you</li>' +
+      '<li>Check out the Helpful How To Videos</li>' +
+    '</ul>' +
+    '<p><b>On our next call, we\u2019ll cover:</b></p>' +
+    '<ul>' +
+      '<li>Questions from your first week</li>' +
+      '<li>How you track deals and how often</li>' +
+      '<li>Logging a closed deal</li>' +
+      '<li>Mobile App</li>' +
+      '<li>Insights</li>' +
+      '<li>Setting your goal</li>' +
+      '<li>How to bulk upload contact and deals if you\u2019d like</li>' +
+    '</ul>' +
+    '<p><b>Quick Start Guide</b><br>A step-by-step overview with videos to walk you through your first 4 days in OneSource.</p>' +
+    '<p><a href="https://drive.google.com/file/d/1Aq6aicabPeSktAulOli-dwyPROxeFbz9/view?usp=drive_link">Download the Quick Start Guide</a></p>' +
+    '<p><b>How-To Video Library</b><br>Need a refresher on specific features? Check out our short video tutorials.</p>' +
+    '<ul>' +
+      '<li><a href="https://21242237.fs1.hubspotusercontent-na2.net/hubfs/21242237/CRE%20OneSource%20Solutions%20-%20Saving%20OneSource%20to%20your%20Chrome%20Bookmark%20(1).mp4">Saving OneSource to your Chrome Bookmark</a></li>' +
+      '<li><a href="https://21242237.fs1.hubspotusercontent-na2.net/hubfs/21242237/CRE%20OneSource%20Solutions%20-%2023%20April%202025.mp4">How to quickly add a note to a client profile</a></li>' +
+      '<li><a href="https://drive.google.com/file/d/1tcX_80A_V3oV8NSYhvR_kZwS0zB_0VA_/view?usp=sharing">View the rest of the video tutorials</a></li>' +
+    '</ul>' +
+    '<p><b>Real-World Scenarios: One-Pager How-To\u2019s</b><br>Here are eight short guides based on common use cases and workflows.</p>' +
+    '<ul>' +
+      '<li><a href="https://drive.google.com/file/d/10hKCfNsXptKALeDqgSolcFibXfzffa7v/view">A Prospect Just Called</a></li>' +
+      '<li><a href="https://drive.google.com/file/d/1s-bWRsi_-1uR6LVfm12C1JEweR9UcB4M/view">Someone Just Called You About a Property They Saw Online or on a Sign</a></li>' +
+      '<li><a href="https://drive.google.com/file/d/1tcX_80A_V3oV8NSYhvR_kZwS0zB_0VA_/view?usp=sharing">View All One-Pagers</a></li>' +
+    '</ul>' +
+    '<p>We\u2019re here if you need anything\u2014don\u2019t hesitate to reach out.</p>';
+
+  // Template list for the side panel. Only "welcome" has real content
+  // right now — the other 3 are placeholders until their actual content
+  // is written, and are labeled generically ("Template 2/3/4") rather
+  // than guessing at real names. isPlaceholder controls both the visual
+  // treatment (grayed out, dashed) and the click behavior (shows a clear
+  // "not built yet" note instead of pretending to load real content).
+  // workflows lists which workflow(s) each template applies to — "suite"
+  // for all of them right now, since we don't yet know if any of the
+  // placeholders will end up scoped to Prospects/Deal View instead; this
+  // is here so that once that's decided, only this one field per
+  // template needs to change, not the rendering logic itself.
+  var PROSPECTS_WELCOME_SUBJECT = "Welcome to CRE OneSource!";
+  var PROSPECTS_WELCOME_BODY_HTML =
+    '<p>Hi {{firstName}},<br><br>{{onboarderName}} here with CRE OneSource. It was great meeting you and walking you through the platform! I just sent you an email with more details and a few short videos that should help you get started.</p>' +
+    '<p>This week, I\u2019d recommend:</p>' +
+    '<ul>' +
+      '<li>Logging into the platform daily</li>' +
+      '<li>Adding the prospects you\u2019re currently working with</li>' +
+      '<li>Adding any activities or follow-ups you currently have (wherever they are currently)</li>' +
+      '<li>Use the mobile app when you are not at your computer.</li>' +
+      '<li>Use the bcc function to add contacts you are currently emailing with that are not already on the platform.</li>' +
+    '</ul>' +
+    '<p>In the meantime, if you have any questions or run into any issues, feel free to text or email me anytime.</p>' +
+    '<p>Looking forward to our next call!</p>';
+
+  var EMAIL_TEMPLATES = [
+    { key: "welcome", label: "Welcome", isPlaceholder: false, workflows: ["suite"],
+      subject: POST_ONBOARD_EMAIL_SUBJECT, body: POST_ONBOARD_EMAIL_BODY_HTML },
+    { key: "prospects_welcome", label: "OS Prospects Welcome", isPlaceholder: false, workflows: ["prospects"],
+      subject: PROSPECTS_WELCOME_SUBJECT, body: PROSPECTS_WELCOME_BODY_HTML },
+    { key: "t3", label: "Template 3", isPlaceholder: true, workflows: ["suite"], subject: "", body: "" },
+    { key: "t4", label: "Template 4", isPlaceholder: true, workflows: ["suite"], subject: "", body: "" }
+  ];
+  var selectedTemplateKey = null;
+
+  function renderTemplateButtons(wf) {
+    var list = document.getElementById("templateButtonList");
+    if (!list) return; // template button list removed from the UI — templates now auto-load instead
+    list.innerHTML = "";
+    EMAIL_TEMPLATES.forEach(function(t) {
+      if (t.workflows.indexOf(wf) === -1) return; // not applicable to the current workflow
+      var isActive = (t.key === selectedTemplateKey);
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = t.label;
+      btn.style.cssText = "display:block; width:100%; text-align:left; padding:9px 11px; margin-bottom:8px; border-radius:7px; font-size:12.5px; cursor:pointer;" +
+        (t.isPlaceholder
+          ? "border:1.5px dashed #d1d5db; background:#fafafa; color:#9ca3af;"
+          : isActive
+            ? "border:1.5px solid #2A8B53; background:rgba(42,139,83,0.1); color:#1f6b40; font-weight:700;"
+            : "border:1.5px solid #e5e7eb; background:#fff; color:#374151; font-weight:600;");
+      btn.onclick = function() { selectEmailTemplate(t.key); };
+      list.appendChild(btn);
+    });
+  }
+
+  // First name only — everything before the first space in the contact's
+  // full name. Safe for this direction even though a simple split isn't
+  // safe for LAST names (e.g. "Chris Van Den Biggelaar" — the last name
+  // is multi-word, but the first name is unambiguously "Chris," correctly
+  // captured either way). Shared by the default blank state, the real
+  // Welcome template, and the placeholder templates, so the greeting
+  // always shows consistently regardless of which (if any) is active.
+  function greetingHtml() {
+    var fullName = (document.getElementById("d_name").value || "").trim();
+    var firstNameOnly = fullName ? fullName.split(/\s+/)[0] : "there";
+    return '<p>Hi ' + firstNameOnly + ',</p>';
+  }
+
+  // Closing sign-off — appears at the end of every email, same as the
+  // greeting appears at the start of every one, including the blank
+  // default state and unbuilt placeholder templates. Sits before the
+  // signature, which is appended separately at send time (see
+  // confirmSendPostOnboardEmail) — this is the actual body's own
+  // sign-off, not part of the signature itself.
+  function closingHtml() {
+    return '<p>Cheers,</p>';
+  }
+
+  // Clicking any template OVERWRITES whatever's currently in Subject/Body
+  // — no confirmation prompt, per direct instruction — but the result
+  // stays fully editable afterward, exactly like the initial auto-loaded
+  // content always has been. A placeholder template still shows the
+  // greeting (per direct instruction — it appears in every template, even
+  // blank/unbuilt ones), followed by a clear "not built yet" note instead
+  // of pretending to have real content below it.
+  function selectEmailTemplate(key) {
+    var t = EMAIL_TEMPLATES.filter(function(x) { return x.key === key; })[0];
+    if (!t) return;
+    selectedTemplateKey = key;
+    if (t.isPlaceholder) {
+      document.getElementById("emailSubjectInput").value = "";
+      document.getElementById("emailBodyEditor").innerHTML = greetingHtml() +
+        "<p><i style=\"color:#9ca3af;\">" + t.label + " isn't built yet — its real content will go here once it's written.</i></p>" +
+        closingHtml();
+    } else {
+      var fullName = (document.getElementById("d_name").value || "").trim();
+      var firstNameOnly = fullName ? fullName.split(/\s+/)[0] : "there";
+      var onboarderName = (document.getElementById("f_onboarder").value || "").trim() || "Your onboarder";
+      document.getElementById("emailSubjectInput").value = t.subject;
+      document.getElementById("emailBodyEditor").innerHTML = t.body
+        .replace("{{firstName}}", firstNameOnly)
+        .replace("{{onboarderName}}", onboarderName) + closingHtml();
+    }
+    document.getElementById("emailBodyEditor").style.color = "#1f2937";
+    renderTemplateButtons(document.getElementById("f_workflow").value);
+    renderAttachmentToggles();
+  }
+
+  var ATTACHMENT_LABELS = {
+    contact: "Contact Import Template",
+    properties: "Properties Import Template",
+    outlook: "Outlook Integration Instructions",
+    dealImportOpen: "Deal Import Template (Open)",
+    dealImportClosed: "Deal Import Template (Closed)"
+  };
+  // Always available whenever the email panel is open, regardless of
+  // which template (or no template at all, e.g. Deal View) is selected —
+  // these are general reference files, not tied to any one workflow's
+  // specific welcome-email content.
+  var ALL_ATTACHMENT_KEYS = ["contact", "properties", "outlook", "dealImportOpen", "dealImportClosed"];
+
+  function renderAttachmentToggles() {
+    var section = document.getElementById("attachmentToggleSection");
+    var list = document.getElementById("attachmentCheckboxList");
+    section.classList.remove("hidden");
+    list.innerHTML = "";
+    ALL_ATTACHMENT_KEYS.forEach(function(key) {
+      var id = "attach_" + key;
+      var row = document.createElement("label");
+      row.style.cssText = "display:flex; align-items:center; gap:7px; font-size:12.5px; color:#374151; margin-bottom:5px; cursor:pointer;";
+      row.innerHTML = '<input type="checkbox" id="' + id + '" value="' + key + '" style="width:auto;" /> ' + (ATTACHMENT_LABELS[key] || key);
+      list.appendChild(row);
+    });
+  }
+
+  function getSelectedAttachmentKeys() {
+    return ALL_ATTACHMENT_KEYS.filter(function(key) {
+      var el = document.getElementById("attach_" + key);
+      return el && el.checked;
+    });
+  }
+
+  function updateBulkUploadButtonVisibility(wf) {
+    var btn = document.getElementById("bulkUploadToggleBtn");
+    var card = document.getElementById("postOnboardEmailWrap");
+    var qualifies = (wf === "suite" || wf === "prospects" || wf === "dealview");
+    if (!qualifies) {
+      btn.classList.add("hidden");
+      // Force the card closed too if it was left open from a previous
+      // workflow selection that no longer qualifies (i.e. cleared back to
+      // blank) — it shouldn't stay visible when no workflow is selected
+      // at all.
+      card.classList.add("hidden");
+      return;
+    }
+    btn.classList.remove("hidden");
+
+    // If the panel's already open and the currently-loaded template
+    // doesn't match the (possibly just-changed) workflow, auto-switch to
+    // the one that does — e.g. switching the dropdown from Suite to
+    // Prospects mid-review should swap the loaded email to the Prospects
+    // version automatically, same as if Prospects had been selected from
+    // the start. Overwrites whatever's currently in Subject/Body, same
+    // as clicking a template directly always has.
+    if (!card.classList.contains("hidden")) {
+      var currentTemplate = EMAIL_TEMPLATES.filter(function(x) { return x.key === selectedTemplateKey; })[0];
+      var stillMatches = currentTemplate && currentTemplate.workflows.indexOf(wf) !== -1;
+      if (!stillMatches) {
+        var autoKey = (wf === "suite") ? "welcome" : (wf === "prospects") ? "prospects_welcome" : null;
+        if (autoKey) {
+          selectEmailTemplate(autoKey);
+        } else {
+          selectedTemplateKey = null;
+          document.getElementById("emailSubjectInput").value = "";
+          document.getElementById("emailBodyEditor").innerHTML = greetingHtml() + closingHtml();
+          document.getElementById("emailBodyEditor").style.color = "#1f2937";
+          renderAttachmentToggles();
+        }
+      }
+    }
+  }
+
+  // Reveals/hides the email draft card — the card itself starts hidden
+  // and only appears once this toggle is clicked, per direct instruction,
+  // rather than auto-appearing whenever Suite/Prospects is selected.
+  function toggleBulkUploadTemplate() {
+    var wrap = document.getElementById("postOnboardEmailWrap");
+    if (wrap.classList.contains("hidden")) {
+      wrap.classList.remove("hidden");
+      renderTemplateButtons(document.getElementById("f_workflow").value);
+      // Only (re)load the default state the first time it's revealed for
+      // THIS specific contact — not on every toggle open/close, so
+      // in-progress edits to the subject/body are never silently wiped
+      // out. Re-loads fresh for a genuinely new contact.
+      if (wrap.getAttribute("data-loaded-for-contact") !== String(currentContactId)) {
+        document.getElementById("emailToInput").value = document.getElementById("d_email").value || "";
+        // Auto-select the welcome template matching the currently
+        // detected workflow, per direct instruction — Suite loads
+        // "welcome," Prospects loads "prospects_welcome." Falls back to
+        // the blank greeting-only state only if the workflow somehow
+        // doesn't match either (shouldn't normally happen, since the
+        // toggle itself is visible for Suite/Prospects/Deal View).
+        var wf = document.getElementById("f_workflow").value;
+        var autoKey = (wf === "suite") ? "welcome" : (wf === "prospects") ? "prospects_welcome" : null;
+        if (autoKey) {
+          selectEmailTemplate(autoKey);
+        } else {
+          selectedTemplateKey = null;
+          document.getElementById("emailSubjectInput").value = "";
+          document.getElementById("emailBodyEditor").innerHTML = greetingHtml() + closingHtml();
+          document.getElementById("emailBodyEditor").style.color = "#1f2937";
+          renderTemplateButtons(wf);
+          renderAttachmentToggles();
+        }
+        wrap.setAttribute("data-loaded-for-contact", String(currentContactId));
+        document.getElementById("emailSendResult").innerHTML = "";
+        checkForSavedSignature();
+        checkForSavedBccAddress();
+      }
+    } else {
+      wrap.classList.add("hidden");
+    }
+  }
+
+  // Checks once per page load whether this person already has a signature
+  // saved (PropertiesService user properties — scoped per accessing
+  // person once the deployment runs as "User accessing the web app").
+  // Doesn't re-check on every reveal, since it can't have changed within
+  // the same session unless they just edited it themselves (handled
+  // directly by saveMySignature/cancelSignatureEdit instead).
+  var signatureCheckedThisSession = false;
+  function checkForSavedSignature() {
+    if (signatureCheckedThisSession) return;
+    signatureCheckedThisSession = true;
+    google.script.run
+      .withSuccessHandler(function(sig) {
+        if (sig) {
+          document.getElementById("signatureSavedPreview").innerHTML = sig;
+          document.getElementById("signatureLoadingNote").classList.add("hidden");
+          document.getElementById("signatureSavedView").classList.remove("hidden");
+          document.getElementById("signatureEditView").classList.add("hidden");
+        } else {
+          document.getElementById("signatureLoadingNote").classList.add("hidden");
+          document.getElementById("signatureEditView").classList.remove("hidden");
+          document.getElementById("cancelSignatureEditBtn").classList.add("hidden"); // nothing to cancel back to yet
+        }
+      })
+      .withFailureHandler(function() {
+        // If the check itself fails for any reason, don't block sending —
+        // just treat it the same as "no signature saved yet."
+        document.getElementById("signatureLoadingNote").classList.add("hidden");
+        document.getElementById("signatureEditView").classList.remove("hidden");
+        document.getElementById("cancelSignatureEditBtn").classList.add("hidden");
+      })
+      .getMySignature();
+  }
+
+  function editMySignature() {
+    document.getElementById("signatureEditor").innerHTML = document.getElementById("signatureSavedPreview").innerHTML;
+    document.getElementById("signatureSavedView").classList.add("hidden");
+    document.getElementById("signatureEditView").classList.remove("hidden");
+    document.getElementById("cancelSignatureEditBtn").classList.remove("hidden");
+  }
+
+  function cancelSignatureEdit() {
+    document.getElementById("signatureEditView").classList.add("hidden");
+    document.getElementById("signatureSavedView").classList.remove("hidden");
+  }
+
+  function saveMySignature() {
+    var sigHtml = document.getElementById("signatureEditor").innerHTML.trim();
+    if (!sigHtml) { alert("Signature can't be empty."); return; }
+    google.script.run
+      .withSuccessHandler(function() {
+        document.getElementById("signatureSavedPreview").innerHTML = sigHtml;
+        document.getElementById("signatureEditView").classList.add("hidden");
+        document.getElementById("signatureSavedView").classList.remove("hidden");
+      })
+      .withFailureHandler(function(err) {
+        alert("Couldn't save signature: " + (err.message || err));
+      })
+      .saveMySignature(sigHtml);
+  }
+
+  // ── HubSpot BCC logging address ──────────────────────────────────
+  // Same one-time-setup pattern as the signature above, same
+  // PropertiesService USER-scoped storage — see getMyBccAddress /
+  // saveMyBccAddress in Code.gs. Unlike the signature, this is REQUIRED
+  // before sending (checked in confirmSendPostOnboardEmail), since a send
+  // with no BCC address means that email goes completely untracked in
+  // HubSpot rather than just missing a nice-to-have sign-off.
+  var bccCheckedThisSession = false;
+  var savedBccAddress = null; // holds the actual address string once known, for use at send time
+
+  // Fully hides the BCC box once a saved address is confirmed — no
+  // visible confirmation line left behind at all, since this only needs
+  // to be set up once per onboarder, ever. The tiny "BCC settings" link
+  // in the panel's top hint line is the only remaining way back in.
+  function collapseBccBox() {
+    document.getElementById("bccSetupSection").classList.add("hidden");
+    document.getElementById("bccSettingsLink").classList.remove("hidden");
+  }
+  // Reverses the above — re-opens the full box (defaulting to its Saved
+  // view, since this is only ever called when an address already exists).
+  function expandBccBox() {
+    document.getElementById("bccSetupSection").classList.remove("hidden");
+    document.getElementById("bccSettingsLink").classList.add("hidden");
+  }
+
+  function checkForSavedBccAddress() {
+    if (bccCheckedThisSession) return;
+    bccCheckedThisSession = true;
+    google.script.run
+      .withSuccessHandler(function(addr) {
+        if (addr) {
+          savedBccAddress = addr;
+          document.getElementById("bccSavedPreview").textContent = addr;
+          document.getElementById("bccLoadingNote").classList.add("hidden");
+          document.getElementById("bccSavedView").classList.remove("hidden");
+          document.getElementById("bccEditView").classList.add("hidden");
+          collapseBccBox();
+        } else {
+          document.getElementById("bccLoadingNote").classList.add("hidden");
+          document.getElementById("bccEditView").classList.remove("hidden");
+          document.getElementById("cancelBccEditBtn").classList.add("hidden"); // nothing to cancel back to yet
+        }
+      })
+      .withFailureHandler(function() {
+        // If the check itself fails, don't silently treat it as "saved" —
+        // BCC is required, so fall to the edit view same as "not saved yet."
+        document.getElementById("bccLoadingNote").classList.add("hidden");
+        document.getElementById("bccEditView").classList.remove("hidden");
+        document.getElementById("cancelBccEditBtn").classList.add("hidden");
+      })
+      .getMyBccAddress();
+  }
+
+  function editMyBccAddress() {
+    expandBccBox(); // no-op if the box was already showing (e.g. clicked from the Saved view directly)
+    document.getElementById("bccAddressInput").value = document.getElementById("bccSavedPreview").textContent;
+    document.getElementById("bccSavedView").classList.add("hidden");
+    document.getElementById("bccEditView").classList.remove("hidden");
+    document.getElementById("cancelBccEditBtn").classList.remove("hidden");
+  }
+
+  function cancelBccEdit() {
+    document.getElementById("bccEditView").classList.add("hidden");
+    document.getElementById("bccSavedView").classList.remove("hidden");
+    // Collapse back down rather than leaving the full box open — cancel
+    // means "never mind, keep what's saved," so it should look the same
+    // as if edit had never been opened.
+    if (savedBccAddress) collapseBccBox();
+  }
+
+  function saveMyBccAddress() {
+    var addr = document.getElementById("bccAddressInput").value.trim();
+    if (!addr) { alert("BCC address can't be empty."); return; }
+    // Loose sanity check only — real validation is HubSpot actually
+    // accepting mail at this address, which isn't checkable from here.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr)) {
+      alert("That doesn't look like a valid email address.");
+      return;
+    }
+    google.script.run
+      .withSuccessHandler(function() {
+        savedBccAddress = addr;
+        document.getElementById("bccSavedPreview").textContent = addr;
+        document.getElementById("bccEditView").classList.add("hidden");
+        document.getElementById("bccSavedView").classList.remove("hidden");
+        collapseBccBox();
+      })
+      .withFailureHandler(function(err) {
+        alert("Couldn't save BCC address: " + (err.message || err));
+      })
+      .saveMyBccAddress(addr);
+  }
+
+  function insertEmailLink() {
+    var url = prompt("Link URL:");
+    if (!url) return;
+    document.execCommand("createLink", false, url);
+  }
+
+  var pendingSendInterval = null;
+  // Guards against a rapid double-click both invoking this function
+  // before the button's own disabled state has a chance to take effect —
+  // checked and set immediately, before any other logic runs, so a
+  // same-instant second click can never start a second countdown/send
+  // even in that narrow race-condition window.
+  var sendInProgress = false;
+
+  function confirmSendPostOnboardEmail() {
+    if (sendInProgress) return; // already sending/counting down — ignore this click entirely
+    var toEmail = document.getElementById("emailToInput").value.trim();
+    if (!toEmail) {
+      document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-warn">⚠ Enter a "To" address first.</div>';
+      return;
+    }
+    // Cc is optional — loosely validated (allows comma-separated multiple
+    // addresses, same as GmailApp's own cc option natively supports) so a
+    // genuine typo is caught here rather than only surfacing as a
+    // confusing GmailApp error after the countdown finishes.
+    var ccEmail = document.getElementById("emailCcInput").value.trim();
+    if (ccEmail) {
+      var ccParts = ccEmail.split(",").map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+      var ccLooksValid = ccParts.every(function(addr) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addr); });
+      if (!ccLooksValid) {
+        document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-warn">⚠ One of the Cc addresses doesn\'t look like a valid email.</div>';
+        return;
+      }
+      ccEmail = ccParts.join(", ");
+    }
+    var subject = document.getElementById("emailSubjectInput").value.trim();
+    var body = document.getElementById("emailBodyEditor").innerHTML;
+    if (!subject || !body) {
+      document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-warn">⚠ Subject and body can\'t be empty.</div>';
+      return;
+    }
+    // Require a saved signature before sending, rather than silently
+    // sending without one — GmailApp.sendEmail does NOT auto-include a
+    // signature the way Gmail's own compose window does, so skipping this
+    // check would mean every email quietly went out with no signature at
+    // all unless someone happened to notice.
+    var sigSaved = !document.getElementById("signatureSavedView").classList.contains("hidden");
+    if (!sigSaved) {
+      document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-warn">⚠ Save your signature above first — it won\'t be added automatically otherwise.</div>';
+      return;
+    }
+    // BCC address is REQUIRED, not optional like the signature — sending
+    // without it means this email goes out completely untracked in
+    // HubSpot, not just missing a nice-to-have sign-off.
+    var bccSaved = !document.getElementById("bccSavedView").classList.contains("hidden");
+    if (!bccSaved || !savedBccAddress) {
+      document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-warn">⚠ Save your HubSpot BCC address above first — this email won\'t be logged to HubSpot otherwise.</div>';
+      return;
+    }
+    var signatureHtml = document.getElementById("signatureSavedPreview").innerHTML;
+    var fullBody = body + signatureHtml;
+
+    // 5-second undo window, same mechanism as Gmail's own Undo Send — the
+    // real GmailApp.sendEmail call is delayed, not "recalled," so clicking
+    // Undo before the countdown finishes means the send never happens at
+    // all rather than needing to be reversed after the fact.
+    var attachmentKeys = getSelectedAttachmentKeys();
+    var secondsLeft = 5;
+    sendInProgress = true;
+    document.getElementById("sendEmailBtn").disabled = true;
+    document.getElementById("sendEmailBtn").style.opacity = "0.5";
+
+    function renderCountdown() {
+      document.getElementById("emailSendResult").innerHTML =
+        '<div class="alert alert-warn" style="display:flex; justify-content:space-between; align-items:center;">' +
+        '<span>Sending in ' + secondsLeft + 's…</span>' +
+        '<span style="font-weight:700; text-decoration:underline; cursor:pointer;" onclick="undoScheduledSend()">Undo</span>' +
+        '</div>';
+    }
+    renderCountdown();
+
+    pendingSendInterval = setInterval(function() {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        clearInterval(pendingSendInterval);
+        pendingSendInterval = null;
+        actuallySendEmail(toEmail, subject, fullBody, attachmentKeys, ccEmail, savedBccAddress);
+      } else {
+        renderCountdown();
+      }
+    }, 1000);
+  }
+
+  function undoScheduledSend() {
+    if (pendingSendInterval) {
+      clearInterval(pendingSendInterval);
+      pendingSendInterval = null;
+    }
+    sendInProgress = false;
+    document.getElementById("sendEmailBtn").disabled = false;
+    document.getElementById("sendEmailBtn").style.opacity = "1";
+    document.getElementById("emailSendResult").innerHTML = "";
+  }
+
+  function actuallySendEmail(toEmail, subject, fullBody, attachmentKeys, ccEmail, bccAddress) {
+    document.getElementById("sendEmailBtn").disabled = false;
+    document.getElementById("sendEmailBtn").style.opacity = "1";
+    setBtnLoading("sendEmailBtn", true, "Sending…", "Send Email →");
+    document.getElementById("emailSendResult").innerHTML = "";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        sendInProgress = false;
+        setBtnLoading("sendEmailBtn", false, "Sending…", "Send Email →");
+        if (res && res.ok) {
+          document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-success">✓ Sent to ' + toEmail + '</div>';
+          scheduleResultFade("emailSendResult", 3000);
+          // Auto-close the whole card on success, so there's no need to
+          // re-click the toggle just to dismiss it — same timing as the
+          // message fade above, so both disappear together. Only on
+          // success: a failed send needs the card to stay open so
+          // whatever went wrong can be fixed and retried.
+          setTimeout(function() {
+            document.getElementById("postOnboardEmailWrap").classList.add("hidden");
+          }, 3000);
+        } else {
+          document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-error">⚠ ' + ((res && res.error) || "Send failed") + '</div>';
+        }
+      })
+      .withFailureHandler(function(err) {
+        sendInProgress = false;
+        setBtnLoading("sendEmailBtn", false, "Sending…", "Send Email →");
+        document.getElementById("emailSendResult").innerHTML = '<div class="alert alert-error">⚠ ' + (err.message || err) + '</div>';
+      })
+      .sendPostOnboardEmail(toEmail, subject, fullBody, attachmentKeys, ccEmail, bccAddress);
+  }
+
+  // ── Accuracy trace sidebar ────────────────────────────────────────
+  // Toggles the third column on/off and switches the grid between its
+  // 2-column and 3-column layouts. The trace content itself was already
+  // rendered into #traceList by renderTrace() when the pull completed —
+  // this just shows/hides the panel.
+  function toggleTracePanel() {
+    var col = document.getElementById("traceCol");
+    var grid = document.getElementById("previewGrid");
+    var btn = document.getElementById("traceToggleBtn");
+    var label = document.getElementById("traceToggleLabel");
+    var opening = col.classList.contains("hidden");
+    col.classList.toggle("hidden");
+    grid.classList.toggle("with-trace", opening);
+    btn.classList.toggle("active", opening);
+    label.textContent = opening ? "Hide accuracy trace" : "Show accuracy trace";
+  }
+
+  var STATUS_BADGE = { ok: "✓", warn: "!", fail: "✕", info: "•" };
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  var currentTrace = [];
+
+  // Renders the full trace delivered with the pull response. This is NOT a
+  // live-updating console — Apps Script's google.script.run is a single
+  // request/response call, so the entire trace arrives at once, after
+  // pullContactData has already finished running on the backend.
+  function renderTrace(trace) {
+    currentTrace = trace || [];
+    var toggleBtn = document.getElementById("traceToggleBtn");
+    var list = document.getElementById("traceList");
+
+    if (!currentTrace.length) {
+      toggleBtn.classList.add("hidden");
+      list.innerHTML = "";
+      return;
+    }
+
+    toggleBtn.classList.remove("hidden");
+    list.innerHTML = currentTrace.map(function(t) {
+      var badge = STATUS_BADGE[t.status] || "•";
+      return '<div class="trace-entry">' +
+        '<span class="trace-badge ' + (t.status || "info") + '">' + badge + '</span>' +
+        '<div><div class="trace-step">' + escapeHtml(t.step) + '</div>' +
+        (t.detail ? '<div class="trace-detail">' + escapeHtml(t.detail) + '</div>' : '') +
+        '</div></div>';
+    }).join("");
+  }
+
+  // Appends more trace entries (e.g. from the async Fathom resolution) onto
+  // whatever's already shown, instead of replacing it.
+  function appendTraceEntries(moreEntries) {
+    renderTrace(currentTrace.concat(moreEntries));
+  }
+
+  // Renders the AI second-opinion verdict — a single result (available or
+  // not), unlike the trace list which is a step-by-step log. Shown above
+  // the trace inside the same toggleable panel.
+  function renderAiCheck(aiCheck) {
+    var box = document.getElementById("aiCheckBox");
+    if (!aiCheck) { box.innerHTML = ""; return; }
+
+    if (!aiCheck.available) {
+      box.innerHTML = '<div class="alert alert-warn" style="margin-bottom:0;">🤖 Unavailable — ' + escapeHtml(aiCheck.reason || "unknown reason") + '</div>';
+      return;
+    }
+
+    var flags = aiCheck.flags || [];
+    var worst = "ok";
+    if (aiCheck.classificationConfidence === "low" || aiCheck.repConfidence === "low" || flags.length) worst = "fail";
+    else if (aiCheck.classificationConfidence === "medium" || aiCheck.repConfidence === "medium") worst = "warn";
+
+    var alertClass = worst === "fail" ? "alert-error" : (worst === "warn" ? "alert-warn" : "alert-success");
+    var icon = worst === "fail" ? "⚠" : (worst === "warn" ? "!" : "✓");
+
+    var html = '<div class="alert ' + alertClass + '" style="margin-bottom:0;">' +
+      '<div style="margin-bottom:6px;"><strong>' + icon + ' Classification (' + escapeHtml(aiCheck.classificationConfidence) + ' confidence):</strong> ' + escapeHtml(aiCheck.classificationNotes || "") + '</div>' +
+      '<div' + (flags.length ? ' style="margin-bottom:6px;"' : '') + '><strong>Rep assignment (' + escapeHtml(aiCheck.repConfidence) + ' confidence):</strong> ' + escapeHtml(aiCheck.repNotes || "") + '</div>';
+
+    if (flags.length) {
+      html += '<div><strong>Flags:</strong><ul style="margin:4px 0 0 18px; padding:0;">' +
+        flags.map(function(f) { return "<li>" + escapeHtml(f) + "</li>"; }).join("") +
+        '</ul></div>';
+    }
+    html += '</div>';
+    box.innerHTML = html;
+  }
+
+  // Fires the AI accuracy check as a SEPARATE, non-blocking call after the
+  // main pull has already returned and rendered everything else. Shows a
+  // "checking" placeholder immediately, then swaps in the real verdict (or
+  // an unavailable message) whenever the AI call actually finishes — this
+  // is what keeps the row preview, tasks, and trace feeling instant instead
+  // of waiting on a live Claude API call before anything appears.
+  function requestAiCheck(ctx) {
+    var box = document.getElementById("aiCheckBox");
+    if (!ctx) { box.innerHTML = ""; return; }
+
+    box.innerHTML = '<div class="alert alert-warn" style="margin-bottom:0;">🤖 Running AI accuracy check…</div>';
+
+    google.script.run
+      .withSuccessHandler(function(aiRes) { renderAiCheck(aiRes); })
+      .withFailureHandler(function(err) {
+        renderAiCheck({ available: false, reason: "AI check request failed: " + (err.message || err) });
+      })
+      .getAiAccuracyCheck(ctx);
+  }
+
+  function mapProductToWorkflow(product) {
+    var empty = { key: "", matches: [], ambiguous: false, noWorkflowNeeded: false };
+    if (!product) return empty;
+
+    var parts = product.split(/[,;]/).map(function(s) { return s.trim().toLowerCase(); });
+    var found = [];       // workflow-mappable products: { key, label }
+    var noSequence = [];  // known products with confirmed no onboarding sequence
+
+    parts.forEach(function(p) {
+      if (!p) return;
+      if (p.indexOf("deal view") >= 0) found.push({ key: "dealview", label: "Deal View" });
+      else if (p.indexOf("prospect") >= 0) found.push({ key: "prospects", label: "Prospects" });
+      else if (p.indexOf("enterprise") >= 0) noSequence.push("Enterprise Suite");
+      else if (p.indexOf("back office") >= 0) noSequence.push("Back Office");
+      else if (p.indexOf("suite") >= 0) found.push({ key: "suite", label: "OneSource Suite" });
+      // anything else unrecognized is silently ignored
+    });
+
+    var distinctKeys = [...new Set(found.map(function(f) { return f.key; }).filter(function(k) { return k; }))];
+    var labels = found.map(function(f) { return f.label; });
+
+    // Back Office (or Enterprise) presence ALWAYS wins, checked before
+    // anything else — confirmed directly: "Back Office" alongside "OS
+    // Prospects" and "Deal View" together means Enterprise specifically,
+    // which has no onboarding workflow at all, NOT OneSource Suite. This
+    // has to be checked first, not after the Suite-bundle rule below —
+    // otherwise Prospects+DealView co-occurring would satisfy the Suite
+    // rule regardless of Back Office also being present, wrongly turning
+    // a genuine Enterprise account into a taskable Suite one. This
+    // applies whether Back Office shows up alone or alongside anything
+    // else — it's a hard override, not just a tiebreaker.
+    if (noSequence.length) {
+      return { key: "", matches: labels.concat(noSequence), ambiguous: false, noWorkflowNeeded: true };
+    }
+    // "Prospects" and "Deal View" both present together (and NOTHING
+    // else) means OneSource Suite specifically — confirmed directly, and
+    // consistent with how HubSpot's own deal Product(s) field works:
+    // there is no literal "Suite" option to select there at all (only
+    // Deal View, OS Prospects, and OS Back Office exist as real values) —
+    // Suite is always the bundle of just the first two, never its own
+    // selectable item, and never a bundle that also includes Back Office
+    // (that's Enterprise, handled above). Any OTHER combination of 2+
+    // distinct products (which shouldn't really happen given the
+    // confirmed real option set, but could from free-text data like All
+    // Data - Lookup) is still genuinely ambiguous, since there's no
+    // confirmed rule for what it means.
+    if (distinctKeys.length === 2 && distinctKeys.indexOf("prospects") >= 0 && distinctKeys.indexOf("dealview") >= 0) {
+      return { key: "suite", matches: labels, ambiguous: false, noWorkflowNeeded: false };
+    }
+    if (distinctKeys.length === 1) {
+      return { key: distinctKeys[0], matches: labels, ambiguous: false, noWorkflowNeeded: false };
+    }
+    if (distinctKeys.length > 1) {
+      return { key: "", matches: labels, ambiguous: true, noWorkflowNeeded: false };
+    }
+    // Nothing workflow-mappable and nothing in noSequence either (since
+    // that's handled by the early return above) — genuinely nothing
+    // recognized in the product string at all.
+    return { key: "", matches: labels, ambiguous: false, noWorkflowNeeded: false };
+  }
+
+  // Returns { display: "7/15/26", iso: "2026-07-15" } or { error: "..." }
+  // if a needed date (onboard or sign-up) hasn't been entered yet.
+  function computeTaskDue(rule) {
+    var onboardVal = document.getElementById("f_onboardDate").value;
+    var signupVal = document.getElementById("f_signupDate").value;
+
+    if (rule === "day1") {
+      if (!onboardVal) return { error: "needs onboard date" };
+      var d0 = new Date(onboardVal + "T12:00:00");
+      return { display: fmt(d0), iso: isoOf(d0) };
+    }
+    if (rule.kind === "weeks") {
+      if (!onboardVal) return { error: "needs onboard date" };
+      var d1 = pushOffWeekend(addDays(onboardVal, rule.n * 7));
+      return { display: fmt(d1), iso: isoOf(d1) };
+    }
+    if (rule.kind === "months") {
+      if (!onboardVal) return { error: "needs onboard date" };
+      var d2 = new Date(onboardVal + "T12:00:00");
+      d2.setMonth(d2.getMonth() + rule.n);
+      d2 = pushOffWeekend(d2);
+      return { display: fmt(d2), iso: isoOf(d2) };
+    }
+    if (rule.kind === "signupRenewalMinus90") {
+      if (!signupVal) return { error: "needs sign-up date" };
+      var d3 = pushOffWeekend(addDays(signupVal, 275));
+      return { display: fmt(d3), iso: isoOf(d3) };
+    }
+    if (rule.kind === "signupDays") {
+      if (!signupVal) return { error: "needs sign-up date" };
+      var d4 = pushOffWeekend(addDays(signupVal, rule.n));
+      return { display: fmt(d4), iso: isoOf(d4) };
+    }
+    return { error: "unknown rule" };
+  }
+
+  function assigneeLabel(a) {
+    if (a === "peter") return "Peter Billing";
+    if (a === "onboarder") return document.getElementById("f_onboarder").value || "(onboarder)";
+    if (a === "salesperson") return document.getElementById("f_salesperson").value || "(salesperson)";
+    return a;
+  }
+
+  function handledLabel(h, onboarderName, t) {
+    if (h === "sheet") return "automatic — part of the tracking sheet write";
+    if (h === "owner") return 'automatic — contact owner set to <span class="assignee-live" data-kind="onboarder">' + (onboarderName || "(onboarder)") + '</span>';
+    if (h === "workflow_enroll") return "automatic — will enroll in " + ((t && t.workflowName) || "workflow");
+    return "";
+  }
+
+  // One-click Yes/No toggle for each task row, replacing the old two-click
+  // dropdown. `value` is kept in sync (buttons support .value just like a
+  // select does) so every existing read of `sel.value` elsewhere keeps
+  // working unchanged — only the rendering/interaction changed.
+  function toggleYesNo(btn) {
+    var newVal = btn.value === "Yes" ? "No" : "Yes";
+    btn.value = newVal;
+    btn.textContent = newVal;
+    btn.classList.remove("yn-yes", "yn-no");
+    btn.classList.add(newVal === "Yes" ? "yn-yes" : "yn-no");
+  }
+
+  function renderWorkflowTasks() {
+    var wf = document.getElementById("f_workflow").value;
+    var container = document.getElementById("workflowTasksContainer");
+    var toggleWrap = document.getElementById("taskListToggleWrap");
+
+    updateBulkUploadButtonVisibility(wf);
+
+    if (!wf) {
+      container.innerHTML = "";
+      toggleWrap.classList.add("hidden");
+      return;
+    }
+
+    // Preserve the current Show/Hide state + any in-progress edits across
+    // a re-render (which fires when the onboard/sign-up date changes) —
+    // but ONLY when it's still the SAME workflow re-rendering. Confirmed
+    // real bug: this used to key purely by task NUMBER (e.g. "2"), with
+    // no notion of which workflow that number belonged to — so Suite's
+    // Task 2 ("Text Client") and Prospects' Task 2 ("Update Contact
+    // Owner...") shared the same cache key, and switching workflows
+    // entirely looked identical to a same-workflow date recalculation.
+    // An edited title from the PREVIOUS workflow would incorrectly carry
+    // over onto the new workflow's same-numbered task. Tracking which
+    // workflow the cached edits actually belong to, and discarding them
+    // outright when the workflow changed, fixes this — a genuine
+    // workflow switch always starts from that workflow's own defaults.
+    var prevRows = document.getElementById("workflowTaskRows");
+    var priorEditsWorkflow = container.getAttribute("data-rendered-workflow") || "";
+    var priorEdits = {};
+    if (prevRows && priorEditsWorkflow === wf) {
+      prevRows.querySelectorAll(".wf-task-row").forEach(function(row) {
+        var sel = row.querySelector(".wf-task-toggle");
+        var key = sel ? (sel.getAttribute("data-action") === "thankyou" ? "thankyou" : sel.getAttribute("data-num")) : null;
+        if (!key) return;
+        var titleInput = row.querySelector(".wf-task-title-input");
+        var dateInput = row.querySelector(".wf-task-date-input");
+        var assigneeSelect = row.querySelector(".wf-task-assignee-select");
+        priorEdits[key] = {
+          title: titleInput ? titleInput.value : null,
+          titleEdited: titleInput ? titleInput.getAttribute("data-edited") === "1" : false,
+          due: dateInput ? dateInput.getAttribute("data-iso") : null,
+          dueEdited: dateInput ? dateInput.getAttribute("data-edited") === "1" : false,
+          toggle: sel ? sel.value : "Yes",
+          assigneeName: assigneeSelect ? assigneeSelect.value : null,
+          assigneeEdited: assigneeSelect ? assigneeSelect.getAttribute("data-edited") === "1" : false
+        };
+      });
+    }
+    container.setAttribute("data-rendered-workflow", wf);
+
+    var onboarderName = document.getElementById("f_onboarder").value;
+    var tasks = WORKFLOW_TASKS[wf];
+
+    // When the original purchaser on this deal already went through the
+    // $250 implementation fee / refund cycle, a new team member added
+    // later shouldn't get charged (and then refunded) again — these 3
+    // tasks are removed from the sequence entirely, not just hidden, so
+    // they never generate as HubSpot tasks at all. Only Suite and
+    // Prospects have refund tasks in the first place (Deal View has none
+    // per the SOP), so this has no effect there regardless of user type.
+    //
+    // Same reasoning extends to the Thank You Card — a new team member
+    // added to an existing deal already has a colleague who received the
+    // welcome card when the deal was first onboarded, so mailing a
+    // second one doesn't make sense either. Filtered by handled type
+    // rather than task number, since the Thank You Card is a different
+    // task number in Suite vs. Prospects.
+    //
+    // Automatic now, driven directly by User Type (itself already
+    // auto-suggested from the deal's own Deal Size field) rather than a
+    // separate manual checkbox — a contact recognized as being on a Team
+    // deal is assumed to be joining an existing account, so this applies
+    // without needing a manual toggle.
+    var isTeamDeal = document.getElementById("f_userType").value === "Team";
+    if (isTeamDeal && (wf === "suite" || wf === "prospects")) {
+      tasks = tasks.filter(function(t) { return [13, 14, 15].indexOf(t.num) === -1 && t.handled !== "thankyou"; });
+    }
+
+    var rows = tasks.map(function(t) {
+      var due = computeTaskDue(t.due);
+      var defaultIso = due.iso || "";
+      var editKey = (t.handled === "thankyou") ? "thankyou" : String(t.num);
+      var prior = priorEdits[editKey];
+
+      // "sheet" (Task 1), "owner" (contact owner update), and
+      // "workflow_enroll" (real workflow enrollment) are all purely
+      // automatic — nothing to toggle or edit, just an informational line.
+      if (t.handled === "sheet" || t.handled === "owner" || t.handled === "workflow_enroll") {
+        return '<div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #e5eae7; opacity:0.6;">' +
+          '<span style="font-size:11px; color:#6b7280; width:24px; flex-shrink:0;">#' + t.num + '</span>' +
+          '<span style="font-size:12px; color:#4b5563; flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="' + t.title.replace(/"/g, "&quot;") + '">' + t.title + '</span>' +
+          '<span style="font-size:11px; color:#6b7280; font-style:italic; flex:1 1 auto; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:right;" title="' + handledLabel(t.handled, onboarderName, t).replace(/<[^>]*>/g, "").replace(/"/g, "&quot;") + '">' + handledLabel(t.handled, onboarderName, t) + '</span>' +
+          '</div>';
+      }
+
+      var isThankYouTask = t.handled === "thankyou";
+      var dataAction = isThankYouTask ? "thankyou" : "";
+
+      // Show the rep's prior edit if they touched it; otherwise the SOP default.
+      var titleVal = (prior && prior.titleEdited && prior.title !== null) ? prior.title : t.title;
+      var titleEditedAttr = (prior && prior.titleEdited) ? ' data-edited="1"' : '';
+      var dueVal = (prior && prior.dueEdited && prior.due !== null) ? prior.due : defaultIso;
+      var dueEditedAttr = (prior && prior.dueEdited) ? ' data-edited="1"' : '';
+      var toggleVal = prior ? prior.toggle : (defaultIso ? "Yes" : "No");
+
+      var dataAttr = dataAction ? ' data-action="' + dataAction + '"' : ' data-num="' + t.num + '"';
+      // type/assignee stay as data attributes. title + due carry their SOP
+      // defaults in data-default-* so a blank field falls back to the
+      // original SOP value at submit time.
+      var extraData = (!isThankYouTask)
+        ? ' data-type="' + t.type + '" data-assignee="' + t.assignee + '"'
+        : '';
+
+      var defaultAssigneeName = assigneeLabel(t.assignee);
+      var assigneeVal = (prior && prior.assigneeEdited && prior.assigneeName !== null) ? prior.assigneeName : defaultAssigneeName;
+      var assigneeEditedAttr = (prior && prior.assigneeEdited) ? ' data-edited="1"' : '';
+      var assigneeOptions = ['Peter Billing'].concat(ALL_REP_NAMES).map(function(name) {
+        var esc = name.replace(/"/g, "&quot;");
+        return '<option value="' + esc + '"' + (name === assigneeVal ? ' selected' : '') + '>' + esc + '</option>';
+      }).join("");
+      var assigneeSpan = '<select class="assignee-live wf-task-assignee-select" data-kind="' + t.assignee + '"' + assigneeEditedAttr +
+        ' onchange="this.setAttribute(\'data-edited\',\'1\')" ' +
+        'style="font-size:11px; color:#111827; background:#eaf6ef; border:none; border-radius:6px; padding:3px 6px; cursor:pointer; flex:1 1 auto; min-width:40px; overflow:hidden; text-overflow:ellipsis;">' +
+        assigneeOptions + '</select>';
+      var missingNote = due.error ? '<span style="color:#b3261e; font-size:11px;"> (' + due.error + ' — pick a date manually)</span>' : '';
+
+      return '<div class="wf-task-row" style="display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid #e5eae7;">' +
+        '<span style="font-size:11px; color:#6b7280; width:24px; flex-shrink:0; padding-top:8px;">#' + t.num + '</span>' +
+        '<div style="flex:1; min-width:0;">' +
+          '<input type="text" class="wf-task-title-input" value="' + titleVal.replace(/"/g, "&quot;") + '" ' +
+            'data-default-title="' + t.title.replace(/"/g, "&quot;") + '"' + titleEditedAttr + ' ' +
+            'oninput="this.setAttribute(\'data-edited\',\'1\')" ' +
+            'style="width:100%; font-size:12px; color:#111827; background:#eaf6ef; border:none; border-radius:6px; padding:5px 8px; margin-bottom:4px;" />' +
+          '<div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap; overflow:hidden;">' +
+            '<span style="font-size:9.5px; font-weight:700; color:#4b5563; background:#eef2ee; padding:2px 7px; border-radius:10px; flex-shrink:0;">' + t.type.toUpperCase() + '</span>' +
+            '<input type="text" readonly class="wf-task-date-input" value="' + displayFromIso(dueVal) + '" ' +
+              'data-iso="' + dueVal + '" data-default-due="' + defaultIso + '"' + dueEditedAttr + ' ' +
+              'onclick="openCalendar(this)" placeholder="Pick a date" ' +
+              'style="font-size:11px; color:#111827; background:#eaf6ef; border:none; border-radius:6px; padding:3px 6px; cursor:pointer; width:86px; box-sizing:border-box; flex-shrink:0;" />' +
+            missingNote +
+            assigneeSpan +
+          '</div>' +
+        '</div>' +
+        '<button type="button" class="wf-task-toggle yn-btn ' + (toggleVal === "Yes" ? "yn-yes" : "yn-no") + '"' + dataAttr + extraData +
+          ' value="' + toggleVal + '" onclick="toggleYesNo(this)" style="width:80px; flex-shrink:0; margin-top:4px;">' + toggleVal + '</button>' +
+        '</div>';
+    }).join("");
+
+    container.innerHTML =
+      '<div style="font-size:11px; color:#6b7280; margin-bottom:10px;">' + tasks.length + ' task(s) — clicking Insert creates the ones set to Yes as real HubSpot tasks. Blank title or date falls back to the original SOP value.</div>' +
+      '<div id="workflowTaskRows">' + rows + '</div>';
+
+    toggleWrap.classList.remove("hidden");
+  }
+
+  // Lightweight update — only refreshes the visible assignee NAME text
+  // (and the owner task's title, if present) without rebuilding the task
+  // list. This is what runs when you retype the onboarder/salesperson
+  // field, so your Yes/No choices and edits on each task are never wiped
+  // out — only the displayed name changes.
+  function updateAssigneeLabels() {
+    var onboarderName = document.getElementById("f_onboarder").value;
+    var salespersonName = document.getElementById("f_salesperson").value;
+
+    document.querySelectorAll(".assignee-live").forEach(function(el) {
+      var kind = el.getAttribute("data-kind");
+      var isSelect = el.tagName === "SELECT";
+      if (isSelect && el.getAttribute("data-edited") === "1") return; // manually overridden — leave it alone
+      var newName = (kind === "onboarder") ? (onboarderName || "(onboarder)")
+        : (kind === "salesperson") ? (salespersonName || "(salesperson)")
+        : (kind === "peter") ? "Peter Billing"
+        : null;
+      if (newName === null) return;
+      if (isSelect) {
+        // Only actually change .value if that name exists as an option —
+        // "(onboarder)"/"(salesperson)" placeholders aren't real options,
+        // so leave the select on whatever it's currently showing rather
+        // than silently resetting to the first option in the list.
+        var hasOption = Array.prototype.some.call(el.options, function(o) { return o.value === newName; });
+        if (hasOption) el.value = newName;
+      } else {
+        el.textContent = newName;
+      }
+    });
+  }
+
+  // ── Live name search ────────────────────────────────────────────
+  var searchDebounceTimer = null;
+  var lastSearchQuery = "";
+  var lastSearchResults = [];
+  var SEARCH_LIMIT = 10; // must match the backend's limit
+  // Incremented on every new search kicked off (server round-trip OR the
+  // client-side fast-path filter). google.script.run gives no guarantee
+  // responses arrive in the order they were sent — a broad early query
+  // (e.g. "Ben") can take longer server-side than a narrower later one
+  // (e.g. "Ben Reed") and land AFTER it, silently overwriting correct,
+  // narrower results with stale, broader ones. Each in-flight request
+  // captures the token value at the moment it was sent; its handler only
+  // applies results if that token still matches the current value —
+  // otherwise a newer search has since superseded it and this response
+  // is discarded.
+  var searchRequestToken = 0;
+
+  function looksLikeUrlIdOrEmail(s) {
+    return s.indexOf("@") >= 0 || s.indexOf("hubspot.com") >= 0 || /^\d+$/.test(s);
+  }
+
+  // Checks a cached result client-side against a refined (longer) query —
+  // stricter than the server's OR-across-fields logic (every typed word
+  // must appear somewhere in the name or email), which is fine since this
+  // is just narrowing an already-fetched set, not the authoritative search.
+  function matchesRefinedQuery(result, query) {
+    var hay = (result.name + " " + result.email).toLowerCase();
+    var words = query.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 0; });
+    return words.every(function(w) { return hay.indexOf(w) >= 0; });
+  }
+
+  function onSearchInput() {
+    var val = document.getElementById("urlInput").value.trim();
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+
+    // Don't bother searching if this looks like a pasted URL/ID/email —
+    // that's handled by the existing Pull data flow directly.
+    if (!val || val.length < 2 || looksLikeUrlIdOrEmail(val)) {
+      searchRequestToken++; // invalidate any in-flight server request — its response would otherwise still land and re-open the dropdown after we just hid it
+      hideSearchResults();
+      return;
+    }
+
+    // FAST PATH: if this query just extends the last one we actually
+    // searched for, and that search wasn't truncated at the limit (so we
+    // know we have the complete match set for it), filter the cached
+    // results locally instead of round-tripping to the server again.
+    // google.script.run has real latency of its own on top of the HubSpot
+    // call, so skipping it entirely is the biggest speed win available —
+    // this makes continued typing feel instant instead of re-debouncing
+    // and re-fetching on every keystroke.
+    if (lastSearchQuery && lastSearchResults.length < SEARCH_LIMIT &&
+        val.toLowerCase().indexOf(lastSearchQuery.toLowerCase()) === 0) {
+      searchRequestToken++; // this answers synchronously and is authoritative for the CURRENT input — invalidate any earlier server request still in flight so it can't land afterward and clobber this
+      var filtered = lastSearchResults.filter(function(r) { return matchesRefinedQuery(r, val); });
+      showSearchResults(filtered);
+      return;
+    }
+
+    var thisToken = ++searchRequestToken;
+    searchDebounceTimer = setTimeout(function() {
+      google.script.run
+        .withSuccessHandler(function(results) {
+          // A newer search (another server round-trip, or a fast-path
+          // filter) has been kicked off since this request was sent —
+          // this response is for a query the person has already typed
+          // past. Discard it instead of overwriting newer, correct
+          // results with stale ones.
+          if (thisToken !== searchRequestToken) return;
+          lastSearchQuery = val;
+          lastSearchResults = results || [];
+          showSearchResults(results);
+        })
+        .withFailureHandler(function() {
+          if (thisToken !== searchRequestToken) return;
+          hideSearchResults();
+        })
+        .searchContactsByName(val);
+    }, 250);
+  }
+
+  function showSearchResults(results) {
+    var box = document.getElementById("nameSearchResults");
+    if (!results || !results.length) {
+      box.innerHTML = '<div style="padding:10px 12px; font-size:12px; color:#6b7280;">No matches found.</div>';
+      box.classList.remove("hidden");
+      return;
+    }
+
+    box.innerHTML = results.map(function(r) {
+      var sub = [r.company, r.email].filter(function(x){ return x; }).join(" · ");
+      return '<div class="search-result-row" data-id="' + r.id + '" ' +
+        'onmousedown="selectSearchResult(\'' + r.id + '\')" ' +
+        'style="padding:9px 12px; cursor:pointer; border-bottom:1px solid #e5eae7;">' +
+        '<div style="font-size:13px; color:#111827;">' + r.name + '</div>' +
+        (sub ? '<div style="font-size:11px; color:#6b7280; margin-top:1px;">' + sub + '</div>' : '') +
+        '</div>';
+    }).join("");
+
+    // simple hover highlight
+    box.querySelectorAll(".search-result-row").forEach(function(row) {
+      row.addEventListener("mouseenter", function() { row.style.background = "#f6faf7"; });
+      row.addEventListener("mouseleave", function() { row.style.background = "transparent"; });
+    });
+
+    box.classList.remove("hidden");
+  }
+
+  function hideSearchResults() {
+    var box = document.getElementById("nameSearchResults");
+    box.classList.add("hidden");
+    box.innerHTML = "";
+  }
+
+  function selectSearchResult(contactId) {
+    document.getElementById("urlInput").value = contactId;
+    searchRequestToken++; // a result was picked — any older in-flight search response is now moot; don't let it reopen the dropdown
+    lastSearchQuery = "";
+    lastSearchResults = [];
+    hideSearchResults();
+    pull();
+  }
+
+  // Hide the dropdown if the person clicks elsewhere on the page.
+  document.addEventListener("click", function(e) {
+    if (e.target.id !== "urlInput") hideSearchResults();
+  });
+
+  function pull() {
+    var input = document.getElementById("urlInput").value.trim();
+    if (!input) return;
+    setAlert("");
+    document.getElementById("fetchStatus").textContent = "Pulling data from HubSpot and Fathom…";
+    hide("inputCard");
+    show("fetchingCard");
+
+    google.script.run
+      .withSuccessHandler(onPullSuccess)
+      .withFailureHandler(onPullFail)
+      .pullContactData(input);
+  }
+
+  function onPullFail(err) {
+    hide("fetchingCard");
+    show("inputCard");
+    setAlert("error", "⚠ " + (err.message || err));
+  }
+
+  function onPullSuccess(res) {
+    if (!res.ok) {
+      hide("fetchingCard");
+      show("inputCard");
+      setAlert("error", "⚠ " + res.error);
+      return;
+    }
+    currentRow = res.row;
+    currentContactId = res.contactId || null;
+    existingRowNumber = res.existingRow || null;
+
+    // Quick links (right side of the preview): HubSpot profile + Fathom search.
+    setQuickLink("qlHubspot", currentContactId
+      ? "https://app-na2.hubspot.com/contacts/21242237/record/0-1/" + currentContactId
+      : "");
+    setQuickLink("qlFathom", res.fathomSearchUrl || "");
+    renderTrace(res.trace);
+
+    document.getElementById("d_name").value  = res.row.userName || "";
+    document.getElementById("d_email").value = res.row.userEmail || "";
+    document.getElementById("d_org").value   = res.row.organization || "";
+
+    document.getElementById("f_userType").value   = res.row.userType || "Individual";
+    document.getElementById("f_referral").value   = res.row.referral || "N";
+    document.getElementById("f_testimonial").value= res.row.testimonial || "N";
+    document.getElementById("f_onboarder").value  = res.row.onboarder || "";
+    document.getElementById("f_salesperson").value= res.row.salesperson || "";
+
+    // Sign-up date is no longer auto-filled from All Data - Lookup — per the
+    // onboarders' confirmation, it always matches First Onboard Date, and
+    // that isn't known yet at this fast-path stage for a new contact
+    // (only the async Fathom step resolves it). Leaving this field empty
+    // here is what lets finalizeAndReveal's default apply once the real
+    // onboard date is actually known. All Data - Lookup is now used only for
+    // product/workflow detection (see the ALL - Data Lookup tab), not
+    // sign-up date.
+    document.getElementById("f_signupDate").value = "";
+    document.getElementById("signupDerived").innerHTML = "";
+    document.getElementById("appDataNote").textContent = "";
+
+    // Auto-detect stays ON, but only when there's a single, confident
+    // match — this is the distinction that matters: "guessing" means
+    // picking something when the signal is ambiguous or absent, which is
+    // what got disabled. A genuine single match (e.g. All Data - Lookup clearly says
+    // "Deal View") should still auto-fill, since that's not a guess, it's
+    // reading real data. The dropdown is left VISIBLE either way (not
+    // hidden behind a separate "auto-detected ✓ / change" control like an
+    // earlier version) — pre-filled when confident, blank when not — so
+    // it's always a single click to override regardless of which case
+    // fired, and the hint always explains why.
+    var mapped = mapProductToWorkflow(res.appData ? res.appData.product : "");
+    var hintEl = document.getElementById("workflowHint");
+
+    if (mapped.key) {
+      document.getElementById("f_workflow").value = mapped.key;
+      hintEl.textContent = "";
+    } else {
+      document.getElementById("f_workflow").value = "";
+      if (mapped.noWorkflowNeeded) {
+        hintEl.textContent = "All Data - Lookup shows " + mapped.matches.join(", ") + " — no onboarding workflow normally applies to that product. Verify against the live tracking sheet before deciding.";
+      } else if (mapped.ambiguous) {
+        hintEl.textContent = "All Data - Lookup shows multiple products (" + mapped.matches.join(", ") + ") — check the live tracking sheet and select below.";
+      } else if (mapped.matches.length) {
+        hintEl.textContent = "All Data - Lookup shows: " + mapped.matches.join(", ") + " — not one of the 3 SOP workflows. Check the live tracking sheet and select below.";
+      } else if (res.appData && res.appData.product) {
+        hintEl.textContent = 'All Data - Lookup product on file: "' + res.appData.product + '" — check the live tracking sheet and select below.';
+      } else {
+        hintEl.textContent = "No match in All Data - Lookup — check the live tracking sheet and select the workflow below.";
+      }
+    }
+
+    // Repeat-contact banner + button label
+    var repeatBox = document.getElementById("repeatBox");
+    if (existingRowNumber) {
+      repeatBox.innerHTML = "🔁 This person is already in the sheet (row " + existingRowNumber + "). " +
+        "This will be recorded as an <strong>additional onboarding call</strong> — # of calls will update, " +
+        "and the last call date will update. First onboard date stays unchanged.";
+      repeatBox.classList.remove("hidden");
+    } else {
+      repeatBox.classList.add("hidden");
+    }
+
+    // Everything above is answerable from HubSpot alone and is ready now.
+    // Onboard date / call count / last-call date still need Fathom — rather
+    // than reveal a partially-filled row and patch it a moment later, keep
+    // the loading state up and wait for Fathom to finish too, so the row
+    // appears ONLY once it's actually complete. The parallel per-rep fetch
+    // (see resolveFathomAndFinalize / getFathomMeetingRange) is what keeps
+    // this combined wait short even for a shared-booking contact who can't
+    // be found via the fast invitee filter.
+    //
+    // EXCEPTION: "Skip Fathom (testing)" bypasses this entirely, regardless
+    // of res.fathomPending — for a contact with no real Fathom history (a
+    // fake test contact), the scan is guaranteed to end in nothing found
+    // after 60-100+ seconds of paced requests, and Fathom's rate limit is
+    // shared across the whole account, so that doomed scan can also cause
+    // real, otherwise-unrelated pulls run shortly after it to get rate-
+    // limited too. This is opt-in and off by default — real contacts
+    // still always resolve through Fathom normally, since that's what
+    // actually verifies or corrects the fast-path guess.
+    var skipFathom = document.getElementById("skipFathomTesting").checked;
+    if (res.fathomPending && !skipFathom) {
+      document.getElementById("fetchStatus").textContent = "Resolving onboard date, last call, and call count…";
+      document.getElementById("fathomPendingNote").style.display = "flex";
+      google.script.run
+        .withSuccessHandler(function(fRes) { finalizeAndReveal(res, fRes); })
+        .withFailureHandler(function(err) { finalizeAndReveal(res, { ok: false, error: err.message || err }); })
+        .resolveFathomAndFinalize(res.contactId, res.fathomContext);
+    } else {
+      if (res.fathomPending && skipFathom) {
+        appendTraceEntries([{ step: "Fathom", detail: "Skipped — \"Skip Fathom\" was checked. Onboarder/salesperson/date shown are the fast HubSpot-only guess, NOT verified against Fathom.", status: "warn" }]);
+      }
+      finalizeAndReveal(res, null);
+    }
+  }
+
+  // Merges the Fathom-dependent fields in and reveals the row — called only
+  // once BOTH the fast HubSpot pull and the Fathom resolution are done, so
+  // the rep sees one complete row rather than watching fields fill in.
+  function finalizeAndReveal(res, fRes) {
+    var haveFathom = fRes && fRes.ok;
+
+    document.getElementById("f_onboardDate").value = haveFathom ? (fRes.firstOnboardDate || "") : (res.row.firstOnboardDate || "");
+    document.getElementById("f_numCalls").value    = haveFathom ? (fRes.numCalls || "0") : (res.row.numCalls || "0");
+    document.getElementById("f_lastCall").value    = haveFathom ? (fRes.lastCallDate || "") : "";
+    // Sign-up date always tracks First Onboard Date — per direct
+    // confirmation from the onboarders that these always match. Uses the
+    // same shared sync function used when the rep manually edits First
+    // Onboard Date later, so the behavior is identical either way: the
+    // initial auto-fill here, and any later correction, both keep
+    // Subscription Sign-up Date in lockstep.
+    syncSignupDateFromOnboardDate();
+    if (haveFathom) {
+      // Fathom's demo/training host, when it differs from the fast-path
+      // HubSpot Meetings-tab guess, is the more authoritative source.
+      document.getElementById("f_onboarder").value   = fRes.onboarder || document.getElementById("f_onboarder").value;
+      document.getElementById("f_salesperson").value = fRes.salesperson || document.getElementById("f_salesperson").value;
+      // Suggested from the real onboarding call's own attendee list (more
+      // than one non-CRE-OneSource attendee = Team) — only applied when
+      // Fathom actually had attendee data to go on; otherwise the
+      // dropdown is left exactly as it already was, since "we don't know"
+      // shouldn't silently become a guess either way.
+      if (fRes.suggestedUserType) document.getElementById("f_userType").value = fRes.suggestedUserType;
+      if (currentRow) currentRow.numCalls = fRes.numCalls;
+      if (fRes.trace && fRes.trace.length) appendTraceEntries(fRes.trace);
+    }
+
+    var insertBtn = document.getElementById("insertBtn");
+    var forceFreshNow = false; // testing-only feature, not present in production
+    insertBtn.textContent = (existingRowNumber && !forceFreshNow)
+      ? "Update existing row (call #" + (haveFathom ? fRes.numCalls : (currentRow ? currentRow.numCalls : "")) + ") →"
+      : "Insert row into production sheet →";
+
+    // Now that everything's in, run the real completeness check.
+    var warns = [];
+    if (!document.getElementById("f_onboarder").value) warns.push("Onboarder not found in Fathom.");
+    if (!document.getElementById("f_onboardDate").value) warns.push("Onboard date not found in Fathom.");
+    if (!document.getElementById("f_salesperson").value) warns.push("No linked deal found in HubSpot.");
+    var wb = document.getElementById("warnBox");
+    if (warns.length) {
+      wb.innerHTML = "⚠ Fill these in before inserting: " + warns.join(" ");
+      wb.classList.remove("hidden");
+    } else {
+      wb.classList.add("hidden");
+    }
+
+    document.getElementById("fathomPendingNote").style.display = "none";
+    renderWorkflowTasks();
+
+    hide("fetchingCard");
+    show("previewWrap");
+
+    // The AI check is a bonus second-opinion layer, not core data the rep
+    // needs to review or insert the row — it stays non-blocking and fills
+    // in after the row is already visible, same as before.
+    if (haveFathom && fRes.aiCheckContext) requestAiCheck(fRes.aiCheckContext);
+    else {
+      var wasSkipped = document.getElementById("skipFathomTesting").checked;
+      var reason = haveFathom ? "Nothing to verify."
+        : wasSkipped ? "Skipped — \"Skip Fathom\" was checked, so there's nothing to review."
+        : "Fathom resolution failed: " + (fRes && fRes.error ? fRes.error : "unknown error");
+      renderAiCheck({ available: false, reason: reason });
+    }
+  }
+
+  function collectRow() {
+    return {
+      userName:        document.getElementById("d_name").value.trim(),
+      userEmail:       document.getElementById("d_email").value.trim(),
+      organization:    document.getElementById("d_org").value.trim(),
+      userType:        document.getElementById("f_userType").value,
+      firstOnboardDate:document.getElementById("f_onboardDate").value,
+      salesperson:     document.getElementById("f_salesperson").value,
+      onboarder:       document.getElementById("f_onboarder").value,
+      numCalls:        document.getElementById("f_numCalls").value,
+      lastCallDate:    document.getElementById("f_lastCall").value,
+      referral:        document.getElementById("f_referral").value,
+      testimonial:     document.getElementById("f_testimonial").value
+    };
+  }
+
+  function setBtnLoading(btnId, loading, loadingLabel, normalLabel) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading ? loadingLabel : normalLabel;
+  }
+
+  function doInsert() {
+    // Insert is only reachable after the row has fully resolved (fast
+    // HubSpot path + Fathom both done — see finalizeAndReveal), so this
+    // only ever fires if Fathom genuinely came back without something
+    // (e.g. no onboard date found at all for this contact). Ask before
+    // saving a row known to be incomplete rather than doing it silently.
+    var hasWarnings = !document.getElementById("warnBox").classList.contains("hidden");
+    if (hasWarnings) {
+      if (!window.confirm("Some fields are still missing (see the warning above) — insert anyway?")) return;
+    }
+
+    // Production always targets the existing row if one exists — the
+    // force-fresh testing convenience doesn't apply here.
+    var targetRow = existingRowNumber;
+
+    var normalLabel = targetRow
+      ? "Update existing row (call #" + (currentRow ? currentRow.numCalls : "") + ") →"
+      : "Insert row into production sheet →";
+    setBtnLoading("insertBtn", true, "Writing to sheet…", normalLabel);
+    document.getElementById("insertResult").innerHTML = "";
+
+    google.script.run
+      .withSuccessHandler(function(res) { onInsertSuccess(res, normalLabel); })
+      .withFailureHandler(function(err) { onInsertFail(err, normalLabel); })
+      .insertRow(collectRow(), targetRow);
+  }
+
+  function onInsertFail(err, normalLabel) {
+    setBtnLoading("insertBtn", false, "", normalLabel);
+    document.getElementById("insertResult").innerHTML =
+      '<div class="alert alert-error">⚠ Sheet write failed: ' + (err.message || err) + '</div>';
+  }
+
+  function onInsertSuccess(res, normalLabel) {
+    setBtnLoading("insertBtn", false, "", normalLabel);
+    if (!res.ok) {
+      document.getElementById("insertResult").innerHTML = '<div class="alert alert-error">⚠ ' + res.error + '</div>';
+      return;
+    }
+    var msg = res.updatedRow
+      ? '✅ Updated existing row ' + res.updatedRow + ' — call count and last call date refreshed.'
+      : '✅ Row inserted into "Edit This One!".';
+    document.getElementById("insertResult").innerHTML = '<div class="alert alert-success">' + msg + '</div>';
+    scheduleResultFade("insertResult");
+  }
+
+  // Independent from the sheet write — assigns the contact owner and every
+  // toggled task directly in HubSpot. Can be run before, after, or without
+  // ever inserting the sheet row; the two actions no longer depend on each
+  // other, so this is safe to click on its own or re-run.
+  function doAssignTasks() {
+    setBtnLoading("assignBtn", true, "Assigning in HubSpot…", "Assign tasks in HubSpot →");
+    document.getElementById("hubspotResult").innerHTML = "";
+    runHubSpotActions();
+  }
+
+  function runHubSpotActions() {
+    var onboarderName = document.getElementById("f_onboarder").value;
+    var salespersonName = document.getElementById("f_salesperson").value;
+
+    // Contact owner update is automatic ONLY for workflows whose own SOP
+    // task list actually includes that step — Suite (Task 3: "Update
+    // Contact Owner") and Prospects (Task 2: "Update Contact Owner to
+    // the Onboarder's Name") both explicitly call it out; Deal View
+    // Only's 9-task SOP list has no such step at all. Firing this
+    // unconditionally for every workflow was a real bug: testing Deal
+    // View Only silently reassigned a contact's owner for an action that
+    // workflow was never supposed to perform. Checking WORKFLOW_TASKS
+    // directly (rather than hardcoding "skip only for dealview") means
+    // this stays correct automatically if a future workflow also omits
+    // this step, without needing a matching code change here.
+    var wfKeyForOwnerCheck = document.getElementById("f_workflow").value;
+    var tasksForOwnerCheck = WORKFLOW_TASKS[wfKeyForOwnerCheck] || [];
+    var workflowIncludesOwnerUpdate = tasksForOwnerCheck.some(function(t) { return t.handled === "owner"; });
+    var doOwner = !!onboarderName && workflowIncludesOwnerUpdate;
+
+    // Real workflow enrollment (Suite Task 7 / Prospects Task 6) — same
+    // "automatic, driven by the workflow's own SOP list" pattern as the
+    // contact owner update above. Deal View has no such step, so this
+    // naturally does nothing there without needing a hardcoded check.
+    //
+    // IMPORTANT ordering dependency, per direct instruction: the
+    // workflow's own emails send based on the contact's owner — so
+    // enrolling before the owner is correctly set to the onboarder would
+    // mean the wrong person's name/signature going out on every email in
+    // the sequence. If this workflow requires an owner update at all
+    // (workflowIncludesOwnerUpdate) but no onboarder has been identified
+    // yet, the owner could never be correctly set — so enrollment is
+    // blocked entirely here, not just delayed. If the workflow genuinely
+    // has no owner-update step (no such dependency exists), enrollment
+    // proceeds normally with no blocking condition.
+    var workflowEnrollTask = tasksForOwnerCheck.filter(function(t) { return t.handled === "workflow_enroll"; })[0];
+    var contactEmailForEnroll = document.getElementById("d_email").value.trim();
+    var ownerBlocksEnrollment = workflowIncludesOwnerUpdate && !onboarderName;
+    var doWorkflowEnroll = !!workflowEnrollTask && !!contactEmailForEnroll && !ownerBlocksEnrollment;
+
+    // Collect every task (thank-you card + every generic numbered task)
+    // that's toggled Yes, reading the CURRENT value of its title and date
+    // inputs. If a field was left blank, fall back to its original SOP
+    // default (data-default-title / data-default-due) so nothing empty is
+    // ever sent to HubSpot.
+    var tasksForNotesLookup = WORKFLOW_TASKS[document.getElementById("f_workflow").value] || [];
+    var tasksToCreate = [];
+    document.querySelectorAll('.wf-task-toggle').forEach(function(sel) {
+      if (sel.value !== "Yes") return;
+      var row = sel.closest(".wf-task-row");
+      if (!row) return;
+      var titleInput = row.querySelector(".wf-task-title-input");
+      var dateInput = row.querySelector(".wf-task-date-input");
+      var isThankYou = sel.getAttribute("data-action") === "thankyou";
+
+      var title = (titleInput && titleInput.value.trim())
+        ? titleInput.value.trim()
+        : (titleInput ? (titleInput.getAttribute("data-default-title") || "") : "");
+      var dueIso = (dateInput && dateInput.getAttribute("data-iso"))
+        ? dateInput.getAttribute("data-iso")
+        : (dateInput ? (dateInput.getAttribute("data-default-due") || "") : "");
+
+      // Notes are SOP-fixed content (call scripts, thank-you card options)
+      // that get written straight into HubSpot's own Task Notes field —
+      // deliberately never shown or editable anywhere in Lupe's own UI,
+      // so this looks the value up directly from the workflow definition
+      // by task number (or "thankyou" for the card), not from any DOM
+      // element the way title/date are.
+      var taskNum = sel.getAttribute("data-num");
+      var def = isThankYou
+        ? tasksForNotesLookup.filter(function(t) { return t.handled === "thankyou"; })[0]
+        : tasksForNotesLookup.filter(function(t) { return String(t.num) === taskNum; })[0];
+      var notes = def ? (def.notes || "") : "";
+
+      var assigneeSelect = row.querySelector(".wf-task-assignee-select");
+      var assigneeValue = assigneeSelect ? assigneeSelect.value : (isThankYou ? "Peter Billing" : "");
+
+      tasksToCreate.push({
+        title: title,
+        type: isThankYou ? "General Task" : sel.getAttribute("data-type"),
+        dueIso: dueIso,
+        assignee: assigneeValue,
+        notes: notes
+      });
+    });
+
+    document.getElementById("hubspotResult").innerHTML = "";
+
+    var remaining = (doOwner ? 1 : 0) + (doWorkflowEnroll ? 1 : 0) + tasksToCreate.length;
+    var hadError = false;
+
+    var finishOne = function() {
+      remaining--;
+      if (remaining <= 0) {
+        setBtnLoading("assignBtn", false, "", "Assign tasks in HubSpot →");
+        // Auto-fade the result log after a few seconds — but ONLY when
+        // everything succeeded. A failed task assignment is something
+        // worth actually noticing and acting on, not something that
+        // should silently vanish on a timer just because other tasks in
+        // the same batch happened to succeed.
+        if (!hadError) scheduleResultFade("hubspotResult");
+      }
+    };
+
+    if (remaining === 0) {
+      setBtnLoading("assignBtn", false, "", "Assign tasks in HubSpot →");
+      document.getElementById("hubspotResult").innerHTML =
+        '<div class="alert alert-warn">Nothing to assign — no onboarder identified and no tasks toggled Yes.</div>';
+      return;
+    }
+
+    // Surface a clear, immediate notice if enrollment exists as a task
+    // but is being blocked by the owner precondition — silently doing
+    // nothing here would be confusing, since the task itself still shows
+    // as "automatic" in the list above.
+    if (workflowEnrollTask && contactEmailForEnroll && ownerBlocksEnrollment) {
+      appendActionResult("Enroll in " + workflowEnrollTask.workflowName,
+        { ok: false, error: "Skipped — no onboarder identified, so the contact owner can't be set correctly yet. Enrollment will only run once an onboarder is identified." });
+    }
+
+    var runWorkflowEnrollment = function() {
+      var enrollLabel = "Enroll in " + workflowEnrollTask.workflowName;
+      google.script.run
+        .withSuccessHandler(function(r) {
+          appendActionResult(enrollLabel, r);
+          if (!r.ok) hadError = true;
+          finishOne();
+        })
+        .withFailureHandler(function(err) {
+          appendActionResult(enrollLabel, { ok: false, error: err.message || err });
+          hadError = true;
+          finishOne();
+        })
+        .enrollContactInWorkflow(contactEmailForEnroll, workflowEnrollTask.flowId);
+    };
+
+    if (doOwner) {
+      google.script.run
+        .withSuccessHandler(function(r) {
+          appendActionResult("Contact owner updated to " + onboarderName, r);
+          if (!r.ok) hadError = true;
+          finishOne();
+          // Enrollment only fires here, AFTER the owner update's own
+          // success handler runs — never in parallel with it — since the
+          // workflow's own emails send based on the contact owner. If
+          // the owner update itself failed, enrollment is skipped
+          // entirely rather than risk it going out under the wrong
+          // owner.
+          if (doWorkflowEnroll) {
+            if (r.ok) {
+              runWorkflowEnrollment();
+            } else {
+              appendActionResult("Enroll in " + workflowEnrollTask.workflowName,
+                { ok: false, error: "Skipped — the contact owner update failed, so enrollment was not attempted." });
+              hadError = true;
+              finishOne();
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          appendActionResult("Contact owner update", { ok: false, error: err.message || err });
+          hadError = true;
+          finishOne();
+          if (doWorkflowEnroll) {
+            appendActionResult("Enroll in " + workflowEnrollTask.workflowName,
+              { ok: false, error: "Skipped — the contact owner update failed, so enrollment was not attempted." });
+            hadError = true;
+            finishOne();
+          }
+        })
+        .updateContactOwnerToOnboarder(currentContactId, onboarderName);
+    } else if (doWorkflowEnroll) {
+      // No owner-update dependency for this workflow at all (or the
+      // owner was already correct going in) — safe to enroll immediately.
+      runWorkflowEnrollment();
+    }
+
+    tasksToCreate.forEach(function(gt) {
+      var labelWithAssignee = gt.title + ' → ' + (gt.assignee || "(unassigned)");
+      google.script.run
+        .withSuccessHandler(function(r) {
+          appendActionResult(labelWithAssignee, r);
+          if (!r.ok) hadError = true;
+          finishOne();
+        })
+        .withFailureHandler(function(err) {
+          appendActionResult(labelWithAssignee, { ok: false, error: err.message || err });
+          hadError = true;
+          finishOne();
+        })
+        .createWorkflowTask(currentContactId, gt.title, gt.type, gt.dueIso, gt.assignee, onboarderName, salespersonName, gt.notes);
+    });
+  }
+
+  // Fades a result box out after a few seconds, then clears its content
+  // and resets it fully visible again (ready for the next run) — rather
+  // than leaving it invisible-but-still-there, which would silently trap
+  // whatever was in it and confuse a later render that appends to it.
+  function scheduleResultFade(elementId, delayMs) {
+    var delay = (typeof delayMs === "number") ? delayMs : 6000;
+    setTimeout(function() {
+      var el = document.getElementById(elementId);
+      if (!el) return;
+      el.classList.add("fading");
+      setTimeout(function() {
+        el.innerHTML = "";
+        el.classList.remove("fading");
+      }, 700);
+    }, delay);
+  }
+
+  function appendActionResult(label, r) {
+    var box = document.getElementById("hubspotResult");
+    var line;
+    if (r.ok) {
+      line = '<div class="alert alert-success" style="margin-bottom:6px;">✅ ' + label + ' — done' + (r.warning ? " (" + r.warning + ")" : "") + '</div>';
+    } else {
+      line = '<div class="alert alert-error" style="margin-bottom:6px;">⚠ ' + label + ' failed — ' + (r.error || "unknown error") + '</div>';
+    }
+    box.innerHTML += line;
+  }
+
+  function resetApp() {
+    currentRow = null;
+    currentContactId = null;
+    existingRowNumber = null;
+    lastSearchQuery = "";
+    lastSearchResults = [];
+    setAlert("");
+    document.getElementById("urlInput").value = "";
+    document.getElementById("appDataNote").textContent = "";
+    document.getElementById("f_workflow").value = "";
+    document.getElementById("postOnboardEmailWrap").classList.add("hidden");
+    document.getElementById("postOnboardEmailWrap").removeAttribute("data-loaded-for-contact");
+    if (pendingSendInterval) { clearInterval(pendingSendInterval); pendingSendInterval = null; }
+    sendInProgress = false;
+    selectedTemplateKey = null;
+    document.getElementById("attachmentToggleSection").classList.add("hidden");
+    document.getElementById("attachmentCheckboxList").innerHTML = "";
+    document.getElementById("bulkUploadToggleBtn").classList.add("hidden");
+    document.getElementById("emailToInput").value = "";
+    document.getElementById("emailSubjectInput").value = "";
+    document.getElementById("emailBodyEditor").innerHTML = "";
+    document.getElementById("emailSendResult").innerHTML = "";
+    document.getElementById("f_onboarder").value = "";
+    document.getElementById("f_salesperson").value = "";
+    document.getElementById("workflowHint").textContent = "";
+    document.getElementById("taskListToggleWrap").classList.add("hidden");
+    document.getElementById("workflowTasksContainer").innerHTML = "";
+    document.getElementById("workflowTasksContainer").removeAttribute("data-rendered-workflow");
+    document.getElementById("insertResult").innerHTML = "";
+    document.getElementById("hubspotResult").innerHTML = "";
+    document.getElementById("fathomPendingNote").style.display = "none";
+    document.getElementById("f_numCalls").placeholder = "";
+    setQuickLink("qlHubspot", ""); setQuickLink("qlFathom", "");
+    renderTrace(null);
+    renderAiCheck(null);
+    document.getElementById("traceCol").classList.add("hidden");
+    document.getElementById("previewGrid").classList.remove("with-trace");
+    document.getElementById("traceToggleBtn").classList.remove("active");
+    document.getElementById("traceToggleLabel").textContent = "Show accuracy trace";
+    hideSearchResults();
+    hide("previewWrap");
+    hide("fetchingCard");
+    show("inputCard");
+  }
+
+  // Populates the Onboarder/Salesperson dropdowns from the server's own
+  // VALID_REPS roster (single source of truth — see getValidRepsList in
+  // Code.gs) rather than a second hardcoded list here that could drift
+  // out of sync with the real roster over time.
+  // Subscription Sign-up Date always tracks First Onboard Date — per
+  // direct confirmation from the onboarders that these always match.
+  // Called both right after Fathom resolves the date (initial fill) AND
+  // live whenever the rep manually edits First Onboard Date afterward
+  // (e.g. correcting a wrong auto-detected date) — previously this only
+  // ran once at load time and stopped tracking after that, so a manual
+  // correction to First Onboard Date silently left Sign-up Date pointing
+  // at the old, wrong value instead of following the correction.
+  function syncSignupDateFromOnboardDate() {
+    var onboardVal = document.getElementById("f_onboardDate").value;
+    if (!onboardVal) return;
+    document.getElementById("f_signupDate").value = onboardVal;
+    updateSignupDerived();
+    document.getElementById("appDataNote").textContent = "✓ Sign-up date set to First Onboard Date";
+  }
+
+  var ALL_REP_NAMES = [];
+  function populateRepDropdowns(reps) {
+    ALL_REP_NAMES = reps || [];
+    ["f_onboarder", "f_salesperson"].forEach(function(id) {
+      var sel = document.getElementById(id);
+      var currentValue = sel.value;
+      (reps || []).forEach(function(name) {
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      // Restore whatever was already selected (e.g. a pull that completed
+      // before this loaded finished populating the list) rather than
+      // resetting it back to blank.
+      if (currentValue) sel.value = currentValue;
+    });
+  }
+  google.script.run.withSuccessHandler(populateRepDropdowns).withFailureHandler(function() {}).getValidRepsList();
+</script>
+</body>
+</html>
