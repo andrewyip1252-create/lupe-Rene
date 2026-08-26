@@ -36,6 +36,7 @@ Before this was made public, the following were replaced with generic placeholde
 - Google Sheet IDs (`YOUR_TEST_TRACKING_SHEET_ID_HERE` / `YOUR_PRODUCTION_TRACKING_SHEET_ID_HERE`)
 - The HubSpot owner ID for the always-Thank-You-Card recipient (`YOUR_HUBSPOT_OWNER_ID_HERE`)
 - The five base64-embedded attachment templates in `EmailAttachments.gs` (Contact Import, Properties Import, Outlook Integration, Deal Import Open/Closed) — the file structure and `getProspectsWelcomeAttachments()` logic are intact, but the actual template bytes are stripped. Re-populate these with `Utilities.base64Encode()` of your own real files if deploying this from scratch.
+- The internal team roster (`VALID_REPS` / `REP_EMAILS`) — real employee names and `@creonesource.com` addresses replaced with generic placeholders (`Rep A` / `rep.a@example.com`, etc.), consistently across every file. The mapping logic itself is untouched; only the identities are placeholder'd.
 
 No HubSpot token or Fathom API key was ever present in these files — both are pulled from Script Properties at runtime.
 

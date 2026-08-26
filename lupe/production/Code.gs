@@ -29,9 +29,9 @@ var REFERRAL_SOURCES = [
 ];
 
 var TEAM_NAMES = [
-  "Andrew Stein","Collin Michels","Ben Ogan","Sam Absalom",
-  "Brock Baker","Tristan Nelko","Peter Billing","Andrew Yip",
-  "Pierce Gregory","Chase Roberts","Sam Stinger","Charlie Coppola"
+  "Rep B","Rep G","Rep A","Rep F",
+  "Rep D","Tristan Nelko","Peter Billing","Andrew Yip",
+  "Pierce Gregory","Chase Roberts","Rep E","Rep C"
 ];
 
 // Peter Billing's HubSpot owner ID — he always gets the thank-you card
@@ -113,8 +113,8 @@ function setCachedFathomResolution(key, bundle) {
 // from ever leaking in from the deal Source field or a mis-hosted meeting.
 // Edit this list to add/remove valid reps (use their exact HubSpot name).
 var VALID_REPS = [
-  "Ben Ogan", "Sam Stinger", "Sam Absalom", "Collin Michels",
-  "Brock Baker", "Charlie Coppola", "Andrew Stein"
+  "Rep A", "Rep E", "Rep F", "Rep G",
+  "Rep D", "Rep C", "Rep B"
 ];
 
 // Exposes the roster to Index.html so the Onboarder/Salesperson dropdowns
@@ -135,13 +135,13 @@ function getValidRepsList() {
 // out meetings we'd have discarded regardless (a cold-caller's bookings,
 // an unrelated staff member's calls), making the scan itself faster.
 var REP_EMAILS = {
-  "Ben Ogan": "ben.ogan@creonesource.com",
-  "Andrew Stein": "andrew.stein@creonesource.com",
-  "Charlie Coppola": "charlie.coppola@creonesource.com",
-  "Brock Baker": "brock.baker@creonesource.com",
-  "Sam Stinger": "sam.stinger@creonesource.com",
-  "Sam Absalom": "sam.absalom@creonesource.com",
-  "Collin Michels": "collin.michels@creonesource.com"
+  "Rep A": "rep.a@example.com",
+  "Rep B": "rep.b@example.com",
+  "Rep C": "rep.c@example.com",
+  "Rep D": "rep.d@example.com",
+  "Rep E": "rep.e@example.com",
+  "Rep F": "rep.f@example.com",
+  "Rep G": "rep.g@example.com"
 };
 
 // Returns the canonical roster name if `name` matches a valid rep, else "".
@@ -150,7 +150,7 @@ function validRep(name) {
   var n = String(name).trim().toLowerCase();
   for (var i = 0; i < VALID_REPS.length; i++) {
     if (VALID_REPS[i].toLowerCase() === n) return VALID_REPS[i];
-    if (n.indexOf(VALID_REPS[i].toLowerCase()) >= 0) return VALID_REPS[i]; // handles "Sam Absalom <email>" etc.
+    if (n.indexOf(VALID_REPS[i].toLowerCase()) >= 0) return VALID_REPS[i]; // handles "Rep F <email>" etc.
   }
   return "";
 }
@@ -158,7 +158,7 @@ function validRep(name) {
 // Unambiguous rep first names, computed from VALID_REPS: a first name is
 // only usable for name-only title matching (e.g. a call titled "...and
 // Andrew..." with no last name) when EXACTLY ONE roster member owns that
-// first name. "Sam" is shared by Sam Stinger AND Sam Absalom, so it's
+// first name. "Sam" is shared by Rep E AND Rep F, so it's
 // deliberately excluded — matching on "Sam" alone can't tell which of the
 // two is meant, whereas "Ben", "Collin", "Brock", "Charlie", "Andrew" each
 // belong to only one person and are safe to match on their own. Computed
@@ -297,7 +297,7 @@ function isoStringToDisplayDate(isoStr) {
 
 // ── Duplicate-recording collapse ────────────────────────────────────
 // When more than one of our reps joins the same customer call with their
-// own Fathom bot recording enabled (e.g. both Ben Ogan and Sam Stinger on
+// own Fathom bot recording enabled (e.g. both Rep A and Rep E on
 // the same Zoom), Fathom creates a SEPARATE recording per bot for what is
 // really ONE real call — same title, same/near-identical start time,
 // different recorded_by. Left uncorrected, this double-counts the "# of
@@ -375,11 +375,11 @@ function isLaterTouchpointTitle(title) {
 // fallback — if the meeting title contains both the contact's own first
 // name AND a rep's name, and it isn't a demo or a later touchpoint, it's
 // treated as onboarding even with no other keyword. The rep match accepts
-// either a FULL roster name (e.g. "Andrew Stein") OR, when the title only
+// either a FULL roster name (e.g. "Rep B") OR, when the title only
 // gives a first name (e.g. "Elia Sanchez and Andrew"), an UNAMBIGUOUS rep
 // first name — one that belongs to exactly one roster member. "Sam" is
 // intentionally excluded from the first-name-only path since two reps
-// (Sam Stinger, Sam Absalom) share it and a bare "Sam" can't tell them
+// (Rep E, Rep F) share it and a bare "Sam" can't tell them
 // apart; a title would need to spell out which Sam. Passed only where the
 // caller has the contact's resolved name in scope; omitted call sites
 // (debug tools) simply skip that fallback and keep the keyword-only check.
@@ -439,12 +439,12 @@ function isOnboardingMeeting(m, contactFirstName) {
   if (title.indexOf("ramp up") >= 0) return true;
 
   // Generic "[Client] and [Rep]" fallback for titles with no keyword at
-  // all — common in practice (e.g. "Shelley Horb and Sam Stinger Call 3",
+  // all — common in practice (e.g. "Shelley Horb and Rep E Call 3",
   // or "Elia Sanchez and Andrew" where the rep is named by first name only).
   if (contactFirstName) {
     var firstLc = contactFirstName.trim().toLowerCase();
     if (firstLc && title.indexOf(firstLc) >= 0) {
-      // 1) Full roster name present (e.g. "Andrew Stein").
+      // 1) Full roster name present (e.g. "Rep B").
       for (var i = 0; i < VALID_REPS.length; i++) {
         if (title.indexOf(VALID_REPS[i].toLowerCase()) >= 0) return true;
       }
@@ -566,7 +566,7 @@ function escapeRegexLiteral(s) {
 // meeting has nothing to do with a contact named Reed. \b enforces this
 // only matches the token as its own word. Confirmed real case: Contact A
 // was getting cross-matched to an unrelated contact's onboarding call
-// (Contact B's, hosted by Ben Ogan) purely through this kind of
+// (Contact B's, hosted by Rep A) purely through this kind of
 // substring collision in contactMatchesMeeting.
 function containsWord(text, token) {
   if (!token) return false;
@@ -819,14 +819,14 @@ function getOwnerName(ownerId) {
 }
 
 // Pulls the salesperson name out of a deal's Source field (e.g.
-// "Referral - Sam Absalom"), but ONLY if that name is a valid rep AND the
+// "Referral - Rep F"), but ONLY if that name is a valid rep AND the
 // source pattern doesn't specifically indicate a cold-call booking.
 // "Cold Call - X" names the BOOKER who set the appointment, not
 // necessarily the salesperson who actually ran the demo and closed the
 // deal — even when X happens to be a valid roster name (some reps also
 // do their own cold-calling). Confirmed wrong in practice: a deal's
-// Source read "Cold Call - Ben Ogan" for a contact whose real salesperson
-// (per Fathom's actual demo recording) was Brock Baker — Ben Ogan was
+// Source read "Cold Call - Rep A" for a contact whose real salesperson
+// (per Fathom's actual demo recording) was Rep D — Rep A was
 // just who booked the meeting, not who ran it. So "Cold Call - X" is
 // never trusted as salesperson evidence, regardless of whether X is on
 // the roster; non-cold-call sources (e.g. a plain rep name, a referral
@@ -977,7 +977,7 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
   // a meeting has been reclassified as THE onboarding session, its host
   // is already claimed for that role and can't also stand as separate
   // proof of who the salesperson was. Confirmed as a real bug: Contact J's "CRE OneSource Meeting with Collin" tripped the demo-keyword
-  // check (naming Collin Michels as salesperson), then — correctly — got
+  // check (naming Rep G as salesperson), then — correctly — got
   // reused as her actual onboarding session once the real training call
   // turned out to be future-dated. Without this retraction, Collin ended
   // up wrongly shown as BOTH the salesperson and the onboarder.
@@ -1132,7 +1132,7 @@ function getMeetingRepsFromHubSpot(contactId, contactFullName) {
         // Restricted to genuinely UNTITLED meetings (no title at all) —
         // NOT merely "unclassified". A meeting that HAS a real title but
         // simply doesn't match our keywords (e.g. "CRE OneSource Reconnect
-        // with Andrew Stein") is a real, distinct signal on its own — it
+        // with Rep B") is a real, distinct signal on its own — it
         // could be a sales re-engagement call, a casual check-in, anything
         // — and promoting it to "the onboarding session" purely for being
         // chronologically earlier and sharing an owner is a much weaker
@@ -2739,7 +2739,7 @@ function getFathomMeetingRange(personName, personEmail, personCompany, signupDat
   // when that demo happened (a deal is usually created around when the
   // demo closes it), so this tries ONE narrow, targeted search around
   // THAT specific date as an extra last step — not a blanket widening of
-  // the default window for everyone. Confirmed real case: Contact M's actual demo (Brock Baker) was in March, ~3 months before her
+  // the default window for everyone. Confirmed real case: Contact M's actual demo (Rep D) was in March, ~3 months before her
   // July onboarding — completely unreachable by any window anchored to
   // onboarding or signup, but her deal's creation date sits right next
   // to when that March demo actually happened.
